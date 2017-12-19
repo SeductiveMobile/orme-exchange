@@ -20,10 +20,10 @@ services:
   ethnode:
     image: ethereum/client-go:alpine
     volumes:
-      # - ${PWD-.}/data/ethereum:/root/.ethereum
-      - ${PWD-.}/files/password:/root/files/password:ro
-      - ${PWD-.}/files/genesis.json:/root/files/genesis.json:ro
-      - ${PWD-.}/files/keystore:/root/.ethereum/devchain/keystore:rw
+#      - ${PWD-.}/data/ethereum:/root/.ethereum
+      - ${PWD-.}/config/ethereum/dev/password:/root/files/password:ro
+      - ${PWD-.}/config/ethereum/dev/genesis.json:/root/files/genesis.json:ro
+      - ${PWD-.}/config/ethereum/dev/keystore:/root/.ethereum/devchain/keystore:rw
     # command: --fast --cache=512 --rpcaddr 0.0.0.0
     command: --datadir=/root/.ethereum/devchain --nodekeyhex=091bd6067cb4612df85d9c1ff85cc47f259ced4d4cd99816b14f35650f59c322 --rpcapi "db,personal,eth,net,web3" --rpccorsdomain='*' --networkid=1234 --rpc --rpcaddr="0.0.0.0" init=/root/files/genesis.json --mine
     environment:
@@ -51,7 +51,7 @@ services:
 
   app:
     build: .
-    command: python main.py
+    command: python orme/serve.py
     environment:
       DATABASE_NAME: "orme_development"
       DATABASE_USER: "postgres"
