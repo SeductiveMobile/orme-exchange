@@ -1,0 +1,67 @@
+version: '2.1'
+services:
+  postgres:
+    image: 'postgres:alpine'
+    volumes:
+      - ${PWD-.}/data/postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      PGDATA: /tmp
+    ports:
+      - '5432:5432'
+
+  redis:
+    image: 'redis:alpine'
+    volumes:
+      - ${PWD-.}/data/redis:/data
+    ports:
+      - '6379:6379'
+
+  ethnode:
+    image: ethereum/client-go:alpine
+    volumes:
+      # - ${PWD-.}/data/ethereum:/root/.ethereum
+      - ${PWD-.}/files/password:/root/files/password:ro
+      - ${PWD-.}/files/genesis.json:/root/files/genesis.json:ro
+      - ${PWD-.}/files/keystore:/root/.ethereum/devchain/keystore:rw
+    # command: --fast --cache=512 --rpcaddr 0.0.0.0
+    command: --datadir=/root/.ethereum/devchain --nodekeyhex=091bd6067cb4612df85d9c1ff85cc47f259ced4d4cd99816b14f35650f59c322 --rpcapi "db,personal,eth,net,web3" --rpccorsdomain='*' --networkid=1234 --rpc --rpcaddr="0.0.0.0" init=/root/files/genesis.json --mine
+    environment:
+      APP_ENV: development
+    ports:
+      - "8545:8545"
+      - "30303:30303/udp"
+      - "30303:30303"
+
+  btcnode:
+    image: ruimarinho/bitcoin-core:0.15-alpine
+    volumes:
+      - ${PWD-.}/data/bitcoin:/home/bitcoin/data
+    command:
+      -printtoconsole
+      -regtest=1
+    environment:
+      BITCOIN_DATA: "/home/bitcoin/data"
+    ports:
+      - "8332:8332"
+      - "8333:8333"
+      - "18332:18332"
+      - "18333:18333"
+      - "18444:18444"
+
+  app:
+    build: .
+    command: python main.py
+    environment:
+      DATABASE_NAME: "orme_development"
+      DATABASE_USER: "postgres"
+      DATABASE_PASSWORD: ""
+      DATABASE_HOST: "postgres"
+      DATABASE_PORT: "5432"
+    volumes:
+      - ${PWD-.}:/usr/src/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
