@@ -37,9 +37,17 @@ services:
     image: ruimarinho/bitcoin-core:0.15-alpine
     volumes:
       - ${PWD-.}/data/bitcoin:/home/bitcoin/data
+#      - ${PWD-.}/config/bitcoin/dev/bitcoin.conf:/root/.bitcoin/bitcoin.conf:ro
+
     command:
       -printtoconsole
+      -server=1
       -regtest=1
+      -rpcport=8332
+      -rpcuser=myuser
+      -rpcpassword=mypassword
+      -rpcallowip=0.0.0.0/0
+      -rpcallowip=::/0
     environment:
       BITCOIN_DATA: "/home/bitcoin/data"
     ports:
@@ -48,6 +56,26 @@ services:
       - "18332:18332"
       - "18333:18333"
       - "18444:18444"
+
+#  btcnode:
+#    image: kylemanna/bitcoind
+#    volumes:
+#      - ${PWD-.}/data/bitcoin:/bitcoin
+#      - ${PWD-.}/config/bitcoin/dev/bitcoin.conf:/bitcoin/.bitcoin/bitcoin.conf
+#    command:
+#      -printtoconsole
+#      -regtest=1
+#      -rpcuser=myuser
+#      -rpcpassword=mypassword
+#      -rpcallowip=0.0.0.0/0
+#      -rpcallowip=::/0
+#    ports:
+#      - "8332:8332"
+#      - "8333:8333"
+#      - "18332:18332"
+#      - "18333:18333"
+#      - "18444:18444"
+
 
   app:
     build: .
