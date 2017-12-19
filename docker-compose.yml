@@ -43,11 +43,11 @@ services:
       -printtoconsole
       -server=1
       -regtest=1
-      -rpcport=8332
       -rpcuser=myuser
       -rpcpassword=mypassword
       -rpcallowip=0.0.0.0/0
       -rpcallowip=::/0
+      -rpcbind=0.0.0.0
     environment:
       BITCOIN_DATA: "/home/bitcoin/data"
     ports:

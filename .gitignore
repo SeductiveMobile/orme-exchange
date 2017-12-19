@@ -3,3 +3,4 @@ venv/*
 .idea
 Ethereum/installed_contracts
 data/
+.gitignore

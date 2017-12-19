@@ -1,7 +1,7 @@
 import bitcoinrpc
-conn = bitcoinrpc.connect_to_remote('myuser', 'mypassword', host='btcnode', port=18332)
+btc_conn = bitcoinrpc.connect_to_remote('myuser', 'mypassword', host='btcnode', port=18332)
 # print "Your balance is %f" % (conn.getbalance(),)
-info = conn.getinfo()
-print("Blocks: %i" % info.blocks)
-print("Connections: %i" % info.connections)
-print("Difficulty: %f" % info.difficulty)
+btc_info = btc_conn.getinfo()
+# print("Blocks: %i" % btc_info.blocks)
+# print("Connections: %i" % btc_info.connections)
+# print("Difficulty: %f" % btc_info.difficulty)
