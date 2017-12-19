@@ -58,6 +58,7 @@ services:
       DATABASE_PASSWORD: ""
       DATABASE_HOST: "postgres"
       DATABASE_PORT: "5432"
+      FLASK_APP: "orme"
     volumes:
       - ${PWD-.}:/usr/src/app
     ports:
