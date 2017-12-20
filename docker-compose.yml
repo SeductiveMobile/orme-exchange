@@ -38,7 +38,6 @@ services:
     volumes:
       - ${PWD-.}/data/bitcoin:/home/bitcoin/data
 #      - ${PWD-.}/config/bitcoin/dev/bitcoin.conf:/root/.bitcoin/bitcoin.conf:ro
-
     command:
       -printtoconsole
       -server=1
@@ -57,29 +56,9 @@ services:
       - "18333:18333"
       - "18444:18444"
 
-#  btcnode:
-#    image: kylemanna/bitcoind
-#    volumes:
-#      - ${PWD-.}/data/bitcoin:/bitcoin
-#      - ${PWD-.}/config/bitcoin/dev/bitcoin.conf:/bitcoin/.bitcoin/bitcoin.conf
-#    command:
-#      -printtoconsole
-#      -regtest=1
-#      -rpcuser=myuser
-#      -rpcpassword=mypassword
-#      -rpcallowip=0.0.0.0/0
-#      -rpcallowip=::/0
-#    ports:
-#      - "8332:8332"
-#      - "8333:8333"
-#      - "18332:18332"
-#      - "18333:18333"
-#      - "18444:18444"
-
-
   app:
-    build: .
-    command: python orme/serve.py
+    build: ./app
+    command: python app/serve.py
     environment:
       DATABASE_NAME: "orme_development"
       DATABASE_USER: "postgres"
@@ -88,11 +67,29 @@ services:
       DATABASE_PORT: "5432"
       FLASK_APP: "orme"
     volumes:
-      - ${PWD-.}:/usr/src/app
+      - ${PWD-.}/app:/usr/src/app
     ports:
       - "8000:8000"
     depends_on:
       - postgres
       - redis
       - btcnode
+      - ethnode
+      - contracts
+
+  contracts:
+    build: ./contracts
+    volumes:
+      - ${PWD-.}/contracts:/dapp
+#    entrypoint: "sh"
+#    command: '-c "sleep 1d"'
+    command: truffle
+    environment:
+      RPC_HOST: "ethnode"
+      RPC_PORT: 8545
+    ports:
+#      - "8080:8080"
+      - "7000:7000"
+      - "7001:8080"
+    depends_on:
       - ethnode
