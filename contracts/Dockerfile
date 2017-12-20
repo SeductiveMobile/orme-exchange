@@ -7,6 +7,8 @@ RUN apk add -t .gyp --no-cache git python g++ make \
 RUN mkdir -p /dapp
 WORKDIR /dapp
 
+RUN truffle install zeppelin
+
 EXPOSE 8080
 #ENTRYPOINT ["sh"]
 ENTRYPOINT ["truffle"]
