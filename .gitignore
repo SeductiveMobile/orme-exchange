@@ -1,6 +1,10 @@
 venv/*
 .DS_Store
 .idea
-Ethereum/installed_contracts
+contracts/installed_contracts
 data/
 .gitignore
+node_modules
+npm-debug.log
+log/*
+tmp/*
