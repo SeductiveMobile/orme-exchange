@@ -29,13 +29,33 @@ class BitcoinClient(object):
         self.network_info = self.connection.getnetworkinfo()
         self.wallet_info = self.connection.getwalletinfo()
 
+        accounts = []
+        for acc in self.connection.listaccounts(0):
+            if len(acc) > 0:
+                accounts.append(acc)
+
         data_hash = {
             "blocks": int(self.blockchain_info["blocks"]),
             "headers": int(self.blockchain_info["headers"]),
             "bestblockhash": self.blockchain_info["bestblockhash"],
             "difficulty": float(self.blockchain_info["difficulty"]),
+            "accounts": accounts,
+            "account_addresses": self.connection.getaddressesbyaccount(""),
+            # "new_address": str(self.new_account('Trololo')),
         }
         return data_hash
 
     def balance(self):
         return float(self.connection.getbalance())
+
+    def new_address(self):
+        """Generate new address"""
+        return self.connection.getnewaddress()
+
+    def new_account(self, name):
+        """Generate new account and address"""
+        return self.connection.getnewaddress(name)
+
+    def generate_blocks(self, amount):
+        """Generate some blocks. Availabe only in Regtest mode"""
+        return self.connection.generate(amount)
