@@ -1,24 +1,25 @@
 from eth_client import c
-from btc_client import btc_conn, btc_info
+from btc_client import BitcoinClient
 from flask import Flask
+from flask import jsonify
 
 app = Flask(__name__)
 
 @app.route('/')
 def home():
-    status = "<pre>"
-    status += "Ethereum net version: %s\n" % c.net_version()
-    status += "Ethereum web3 client version: %s\n" % c.web3_clientVersion()
-    status += "Ethereum gas price: %s\n" % c.eth_gasPrice()
-    status += "Ethereum block number: %s\n" % c.eth_blockNumber()
-    status += "\n"
-    status += "Bitcoin blocks: %s\n" % btc_info.blocks
-    status += "Bitcoin connections: %s\n" % btc_info.connections
-    status += "Bitcoin difficulty: %s\n" % btc_info.difficulty
-    status += "Bitcoin ballance: %s\n" % btc_conn.getbalance()
-    status += "</pre>"
+    bc = BitcoinClient()
+    bitcoin_info = bc.info()
 
-    return status
+    ethereum_info = {
+        "net_version": c.net_version(),
+        "web3_client_version": c.web3_clientVersion(),
+        "gas_price": c.eth_gasPrice(),
+        "block_number": c.eth_blockNumber()
+    }
+
+    resp = {"bitcoin": bitcoin_info, "ethereum": ethereum_info}
+    resp["bitcoin"]["balance"] = bc.balance()
+    return jsonify(resp)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000)

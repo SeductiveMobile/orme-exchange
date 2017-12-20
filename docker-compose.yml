@@ -66,6 +66,11 @@ services:
       DATABASE_HOST: "postgres"
       DATABASE_PORT: "5432"
       FLASK_APP: "orme"
+      ORV_WALLET_ADDRESS: ""
+      BITCOIN_USER: "myuser"
+      BITCOIN_PASSWORD: "mypassword"
+      BITCOIN_HOST: "btcnode"
+      BITCOIN_PORT: 18332
     volumes:
       - ${PWD-.}/app:/usr/src/app
     ports:
