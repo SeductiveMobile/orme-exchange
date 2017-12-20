@@ -88,8 +88,7 @@ services:
       RPC_HOST: "ethnode"
       RPC_PORT: 8545
     ports:
-#      - "8080:8080"
+      - "8080:8080"
       - "7000:7000"
-      - "7001:8080"
     depends_on:
       - ethnode
