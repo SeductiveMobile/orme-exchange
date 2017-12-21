@@ -58,6 +58,9 @@ class EthereumClient(object):
         """
         return self.connection.personal.unlockAccount(address, passphrase, duration)
 
+    def fetch_contract(self, address):
+        return self.connection.eth.contract(address=address)
+
 
 class Address(object):
     # ETH client handler
@@ -86,3 +89,28 @@ class Address(object):
             self.address = self.client.new_address(self.passphrase)
             return True
         return False
+
+class Contract(object):
+
+    client = None
+
+    # Public key AKA address
+    address = None
+
+    # Contract handler
+    # See http://web3py.readthedocs.io/en/stable/contracts.html for handler methods
+    handler = None
+
+    def __init__(self, client, address):
+        """Contract class constructor.
+
+        Keyword arguments:
+        client -- ethereum client handler
+        address -- contract actual address we're working on
+        """
+        self.address = address
+        self.client = client
+        self.handler = self.__contract_handler()
+
+    def __contract_handler(self):
+        return self.client.fetch_contract(self.address)
