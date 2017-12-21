@@ -5,4 +5,5 @@ while ! nc -z $RPC_HOST $RPC_PORT; do
 done
 
 echo "Ethereum started, running truffle started"
-truffle console
+truffle install zeppelin
+truffle test
