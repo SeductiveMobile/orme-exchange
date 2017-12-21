@@ -164,7 +164,7 @@ class Address(object):
 
     def register(self):
         """Register new address in the blockchain and fetch its private key. Returns false if failed."""
-        if self.public_key is not None:
+        if self.public_key is None:
             self.public_key = self.client.new_address()
             self.private_key = self.client.get_private_key(self.public_key)
             return True

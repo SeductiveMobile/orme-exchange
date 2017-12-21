@@ -19,10 +19,70 @@ class EthereumClient(object):
     def info(self):
         self.info = self.connection.eth
 
+        # New address is "0x1ebd93ff2fc90b873a68e16b931a7c66e2237e31"
+        # addr = Address(client=self, passphrase="nopassphrase")
+        # result = addr.register()
+
         # Use reference: https://github.com/ethereum/wiki/wiki/JavaScript-API
         data_hash = {
             "block_number": self.info.blockNumber,
             "gas_price": self.info.gasPrice,
             "addresses": self.info.accounts,
+            # "newly_created_address": addr.address,
         }
         return data_hash
+
+    def new_address(self, passphrase):
+        """Generate new Ethereum address with specified password and return the address
+
+        Keyword arguments:
+        passphrase -- passphrase to be used for new address (account)
+        """
+        return self.connection.personal.newAccount(passphrase)
+
+    def lock_address(self, address):
+        """Lock specific address
+
+        Keyword arguments:
+        address -- address public key
+        """
+        return self.connection.personal.lockAccount(address)
+
+    def unlock_address(self, address, passphrase, duration=60):
+        """Unlock specific address with passphrase for number of seconds. Returns boolean.
+
+        Keyword arguments:
+        address -- address public key
+        passphrase -- address unlock passphrase
+        duration -- unlock duration in seconds, default is 60
+        """
+        return self.connection.personal.unlockAccount(address, passphrase, duration)
+
+
+class Address(object):
+    # ETH client handler
+    client = None
+
+    # Public key AKA address
+    address = None
+
+    # Address passphrase for signing
+    passphrase = None
+
+    def __init__(self, client, address=None, passphrase=None):
+        """Address class constructor.
+
+        Keyword arguments:
+        client -- ethereum client handler
+        address -- (optional) actual address we're working on
+        """
+        self.address = address
+        self.client = client
+        self.passphrase = passphrase
+
+    def register(self):
+        """Register new address in the blockchain and fetch its private key. Returns false if failed."""
+        if self.address is None and self.passphrase is not None:
+            self.address = self.client.new_address(self.passphrase)
+            return True
+        return False
