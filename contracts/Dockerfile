@@ -17,4 +17,4 @@ RUN truffle install zeppelin
 
 EXPOSE 8080
 #ENTRYPOINT ["sh"]
-ENTRYPOINT ["truffle"]
+ENTRYPOINT ["/bin/sh", "truffle.sh"]
