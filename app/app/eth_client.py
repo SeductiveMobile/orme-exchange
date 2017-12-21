@@ -23,6 +23,6 @@ class EthereumClient(object):
         data_hash = {
             "block_number": self.info.blockNumber,
             "gas_price": self.info.gasPrice,
-            "accounts": self.info.accounts,
+            "addresses": self.info.accounts,
         }
         return data_hash

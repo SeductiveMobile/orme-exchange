@@ -10,6 +10,7 @@ WORKDIR /dapp
 #RUN truffle init
 #RUN npm init
 RUN npm install zeppelin-solidity
+RUN truffle install zeppelin
 
 EXPOSE 8080
 #ENTRYPOINT ["sh"]

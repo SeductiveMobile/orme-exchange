@@ -34,6 +34,13 @@ class BitcoinClient(object):
             if len(acc) > 0:
                 accounts.append(acc)
 
+        # new_address = self.new_address()
+        # new_address_valid = self.validate_address(new_address)
+        # new_address_pk = self.get_private_key(new_address)
+
+        # New address: "miC9oPat2xrtDstticmrw2YM7UUN9A6jcn"
+        # New address private key: "cNci511KkyyU8GqMdZVxv1NxMbUMKqjo75PAQNdBFGgzbD7W8gZm"
+
         data_hash = {
             "blocks": int(self.blockchain_info["blocks"]),
             "headers": int(self.blockchain_info["headers"]),
@@ -42,6 +49,9 @@ class BitcoinClient(object):
             "accounts": accounts,
             "account_addresses": self.connection.getaddressesbyaccount(""),
             # "new_address": str(self.new_account('Trololo')),
+            # "new_address": new_address,
+            # "new_address_valid": new_address_valid,
+            # "new_address_pk": new_address_pk,
         }
         return data_hash
 
@@ -52,6 +62,17 @@ class BitcoinClient(object):
         """Generate new address"""
         return self.connection.getnewaddress()
 
+    def get_private_key(self, address):
+        """Fetch private key of specific address owned by you"""
+        return self.connection.dumpprivkey(address)
+
+    def validate_address(self, address):
+        """Check that address is valid on Blockchain"""
+        result = self.connection.validateaddress(address)
+        if "isvalid" in result:
+            return result["isvalid"]
+        return False
+
     def new_account(self, name):
         """Generate new account and address"""
         return self.connection.getnewaddress(name)
@@ -59,3 +80,35 @@ class BitcoinClient(object):
     def generate_blocks(self, amount):
         """Generate some blocks. Availabe only in Regtest mode"""
         return self.connection.generate(amount)
+
+
+class Address(object):
+    # BTC client handler
+    client = None
+
+    #  Public key AKA address
+    public_key = None
+
+    # Address private key
+    private_key = None
+
+    def __init__(self, client, address=None):
+        self.public_key = address
+        self.client = client
+
+    def register(self):
+        if self.public_key is not None:
+            self.public_key = self.client.new_address()
+            self.private_key = self.client.get_private_key(self.public_key)
+            return True
+        return False
+
+    def is_valid(self):
+        return self.client.validate_address(self.public_key)
+
+    def __str__(self):
+        return self.public_key
+
+    # TODO: Implement
+    def balance(self):
+        raise ValueError('Not implemented yet')
