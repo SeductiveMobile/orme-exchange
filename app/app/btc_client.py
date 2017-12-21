@@ -118,8 +118,21 @@ class BitcoinClient(object):
             passphrase = os.environ["BITCOIN_WALLET_PASSPHRASE"]
         return self.connection.walletlock(passphrase, seconds)
 
+    def change_wallet_passphrase(self, old_passphrase=None, new_passphrase=None):
+        """Set passphrase for current wallet.
+
+        Keyword arguments:
+        old_passphrase -- old passphrase that unlocks the wallet
+        new_passphrase -- new passphrase that unlocks the wallet
+        """
+        if not old_passphrase:
+            old_passphrase = ''
+        if not new_passphrase:
+            new_passphrase = os.environ["BITCOIN_WALLET_PASSPHRASE"]
+        return self.connection.walletpassphrasechange(old_passphrase, new_passphrase)
+
     def send(self, from_addr, to_addr, amount):
-        """Send funds from address to address.
+        """Send funds from address to address. Returns transaction ID.
 
         Keyword arguments:
         from_addr -- address (public key) we're sending funds from
