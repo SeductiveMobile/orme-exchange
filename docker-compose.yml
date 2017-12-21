@@ -91,7 +91,7 @@ services:
       - ${PWD-.}/contracts:/dapp
 #    entrypoint: "sh"
 #    command: '-c "sleep 1d"'
-    command: truffle console
+    command: setup.sh
     environment:
       RPC_HOST: "ethnode"
       RPC_PORT: 8545
