@@ -4,5 +4,5 @@ while ! nc -z $RPC_HOST $RPC_PORT; do
   sleep 0.1
 done
 
-echo "Ethereum started, running truffle started"
-truffle console
+echo "Ethereum started, running truffle..."
+truffle build
