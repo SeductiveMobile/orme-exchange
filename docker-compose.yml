@@ -72,6 +72,7 @@ services:
       BITCOIN_PASSWORD: "mypassword"
       BITCOIN_HOST: "btcnode"
       BITCOIN_PORT: 18332
+      BITCOIN_WALLET_PASSPHRASE: "nopassphrase"
       ETHEREUM_HOST: "ethnode"
       ETHEREUM_PORT: 8545
     volumes:
