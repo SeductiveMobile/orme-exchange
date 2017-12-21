@@ -7,6 +7,9 @@ RUN apk add -t .gyp --no-cache git python g++ make \
 RUN mkdir -p /dapp
 WORKDIR /dapp
 
+# Add current codebase to container
+COPY . .
+
 #RUN truffle init
 #RUN npm init
 RUN npm install zeppelin-solidity
