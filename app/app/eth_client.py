@@ -22,6 +22,7 @@ class EthereumClient(object):
         # New address is "0x1ebd93ff2fc90b873a68e16b931a7c66e2237e31"
         # addr = Address(client=self, passphrase="nopassphrase")
         # result = addr.register()
+        # Address on testnet: '0xd9fea4ca882344050f4c6d64bc74a973087a5947'
 
         # Use reference: https://github.com/ethereum/wiki/wiki/JavaScript-API
         total_balance = 0
@@ -35,6 +36,7 @@ class EthereumClient(object):
             "total_balance": total_balance,
             # "last_address_balance": self.address_balance(self.info.accounts[-1])
             # "newly_created_address": addr.address,
+            # "rinkeby_balance": self.address_balance('0xd9fea4ca882344050f4c6d64bc74a973087a5947')
         }
         return data_hash
 
