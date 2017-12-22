@@ -1,4 +1,4 @@
-FROM node:8.0.0-alpine
+FROM node:8-alpine
 
 RUN apk add -t .gyp --no-cache git python g++ make \
     && npm install -g truffle \
@@ -17,4 +17,5 @@ RUN truffle install zeppelin
 
 EXPOSE 8080
 #ENTRYPOINT ["sh"]
-ENTRYPOINT ["/bin/sh", "truffle.sh"]
+#ENTRYPOINT ["/bin/sh"]
+CMD /bin/sh truffle.sh
