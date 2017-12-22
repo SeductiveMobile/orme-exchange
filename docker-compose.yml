@@ -94,6 +94,8 @@ services:
     environment:
       RPC_HOST: "ethnode"
       RPC_PORT: 8545
+      DEPLOYER_ADDRESS: "0x1ebd93ff2fc90b873a68e16b931a7c66e2237e31"
+      DEPLOYER_PASSPHRASE: "nopassphrase"
     ports:
       - "8080:8080"
       - "7000:7000"
