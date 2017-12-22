@@ -25,7 +25,18 @@ services:
       - ${PWD-.}/config/ethereum/dev/genesis.json:/root/files/genesis.json:ro
       - ${PWD-.}/config/ethereum/dev/keystore:/root/.ethereum/devchain/keystore:rw
     # command: --fast --cache=512 --rpcaddr 0.0.0.0
-    command: --datadir=/root/.ethereum/devchain --nodekeyhex=091bd6067cb4612df85d9c1ff85cc47f259ced4d4cd99816b14f35650f59c322 --rpcapi "db,personal,eth,net,web3" --rpccorsdomain='*' --networkid=1234 --rpc --rpcaddr="0.0.0.0" init=/root/files/genesis.json --mine
+    command:
+      #    init=/root/files/genesis.json
+      --datadir=/root/.ethereum/devchain
+      --nodekeyhex=091bd6067cb4612df85d9c1ff85cc47f259ced4d4cd99816b14f35650f59c322
+      --rpcapi "db,personal,eth,net,web3"
+      --rpccorsdomain='*'
+      --networkid=1234
+      --rpc
+      --rpcaddr="0.0.0.0"
+      --etherbase '0x1ebd93ff2fc90b873a68e16b931a7c66e2237e31'
+      --mine
+      --dev
     environment:
       APP_ENV: development
     ports:

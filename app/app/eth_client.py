@@ -24,10 +24,15 @@ class EthereumClient(object):
         # result = addr.register()
 
         # Use reference: https://github.com/ethereum/wiki/wiki/JavaScript-API
+        total_balance = 0
+        for acc in self.info.accounts:
+            total_balance += self.address_balance(acc)
+
         data_hash = {
             "block_number": self.info.blockNumber,
             "gas_price": self.info.gasPrice,
             "addresses": self.info.accounts,
+            "total_balance": total_balance,
             # "last_address_balance": self.address_balance(self.info.accounts[-1])
             # "newly_created_address": addr.address,
         }
