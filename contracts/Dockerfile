@@ -11,9 +11,10 @@ WORKDIR /dapp
 COPY . .
 
 #RUN truffle init
-#RUN npm init
 #RUN npm install zeppelin-solidity
-RUN truffle install zeppelin
+RUN apk update && apk upgrade \
+    && apk add --no-cache g++ ca-certificates python python-dev py-pip \
+    && pip install web3
 
 EXPOSE 8080
 #ENTRYPOINT ["sh"]

@@ -6,4 +6,5 @@ done
 
 echo "Ethereum started, running truffle"
 truffle install zeppelin
+python unlock.py
 truffle test
