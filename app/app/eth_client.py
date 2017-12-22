@@ -28,6 +28,7 @@ class EthereumClient(object):
             "block_number": self.info.blockNumber,
             "gas_price": self.info.gasPrice,
             "addresses": self.info.accounts,
+            # "last_address_balance": self.address_balance(self.info.accounts[-1])
             # "newly_created_address": addr.address,
         }
         return data_hash
@@ -60,6 +61,14 @@ class EthereumClient(object):
 
     def fetch_contract(self, address):
         return self.connection.eth.contract(address=address)
+
+    def address_balance(self, address):
+        """Check balance fore specific address
+
+        Keyword arguments:
+        address -- address public key
+        """
+        return self.connection.eth.getBalance(address)
 
 
 class Address(object):
