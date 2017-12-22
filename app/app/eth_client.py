@@ -29,11 +29,15 @@ class EthereumClient(object):
         for acc in self.info.accounts:
             total_balance += self.address_balance(acc)
 
+        last_block = self.get_block('latest')
+        gas_limit = last_block.gasLimit
+
         data_hash = {
             "block_number": self.info.blockNumber,
             "gas_price": self.info.gasPrice,
             "addresses": self.info.accounts,
             "total_balance": total_balance,
+            "gas_limit": gas_limit,
             # "last_address_balance": self.address_balance(self.info.accounts[-1])
             # "newly_created_address": addr.address,
             # "rinkeby_balance": self.address_balance('0xd9fea4ca882344050f4c6d64bc74a973087a5947')
@@ -76,6 +80,14 @@ class EthereumClient(object):
         address -- address public key
         """
         return self.connection.eth.getBalance(address)
+
+    def get_block(self, block_number='latest'):
+        """Get block data
+
+        Keyword arguments:
+        block_number -- block_number
+        """
+        return self.connection.eth.getBlock(block_number)
 
 
 class Address(object):

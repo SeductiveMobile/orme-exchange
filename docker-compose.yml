@@ -17,34 +17,76 @@ services:
     ports:
       - '6379:6379'
 
-  ethnode:
-    image: ethereum/client-go:alpine
+#   ethnode:
+#     image: ethereum/client-go:alpine
+#     volumes:
+# #      - ${PWD-.}/data/ethereum:/root/.ethereum
+#       - ${PWD-.}/config/ethereum/dev/password:/root/files/password:ro
+#       - ${PWD-.}/config/ethereum/dev/genesis.json:/root/files/genesis.json:ro
+#       - ${PWD-.}/config/ethereum/dev/keystore:/root/.ethereum/devchain/keystore:rw
+#     command:
+#       --datadir=/root/.ethereum/devchain
+#       --nodekeyhex=091bd6067cb4612df85d9c1ff85cc47f259ced4d4cd99816b14f35650f59c322
+#       --rpcapi "db,personal,eth,net,web3"
+#       --rpccorsdomain='*'
+#       --networkid=0
+#       --rpc
+#       --rpcaddr="0.0.0.0"
+#       --etherbase '0x1ebd93ff2fc90b873a68e16b931a7c66e2237e31'
+#       --mine
+#       --nodiscover
+#       --maxpeers 0
+#       --dev
+#       init=/root/files/genesis.json
+# #      --fast --cache=512 --rpc --rpcaddr '0.0.0.0' --testnet
+#     environment:
+#       APP_ENV: development
+#     ports:
+#       - "8545:8545"
+#       - "30303:30303/udp"
+#       - "30303:30303"
+
+  bootstrap:
+    build: monitored-geth-client
+    restart: on-failure
+    container_name: bootstrap
+    hostname: bootstrap
+    links:
+      - netstats
+    entrypoint: /root/start.sh
+    command: '--datadir=~/.ethereum/devchain --nodekeyhex=091bd6067cb4612df85d9c1ff85cc47f259ced4d4cd99816b14f35650f59c322 --rpcapi "db,personal,eth,net,web3" --rpccorsdomain="*" --networkid=456719 --rpc --rpcaddr="0.0.0.0"'
     volumes:
-#      - ${PWD-.}/data/ethereum:/root/.ethereum
       - ${PWD-.}/config/ethereum/dev/password:/root/files/password:ro
       - ${PWD-.}/config/ethereum/dev/genesis.json:/root/files/genesis.json:ro
       - ${PWD-.}/config/ethereum/dev/keystore:/root/.ethereum/devchain/keystore:rw
-    command:
-      --datadir=/root/.ethereum/devchain
-      --nodekeyhex=091bd6067cb4612df85d9c1ff85cc47f259ced4d4cd99816b14f35650f59c322
-      --rpcapi "db,personal,eth,net,web3"
-      --rpccorsdomain='*'
-      --networkid=0
-      --rpc
-      --rpcaddr="0.0.0.0"
-      --etherbase '0x1ebd93ff2fc90b873a68e16b931a7c66e2237e31'
-      --mine
-      --nodiscover
-      --maxpeers 0
-      --dev
-      init=/root/files/genesis.json
-#      --fast --cache=512 --rpc --rpcaddr '0.0.0.0' --testnet
-    environment:
-      APP_ENV: development
+      - /etc/localtime:/etc/localtime:ro
     ports:
-      - "8545:8545"
-      - "30303:30303/udp"
       - "30303:30303"
+      - "30303:30303/udp"
+      - "8545:8545"
+  eth:
+    build: monitored-geth-client
+    restart: on-failure
+    links:
+      - bootstrap
+      - netstats
+    entrypoint: /root/start.sh
+    volumes:
+      - ${PWD-.}/config/ethereum/dev/password:/root/files/password:ro
+      - ${PWD-.}/config/ethereum/dev/genesis.json:/root/files/genesis.json:ro
+      - ${PWD-.}/config/ethereum/dev/keystore:/root/.ethereum/devchain/keystore:rw
+      - /etc/localtime:/etc/localtime:ro
+    command: '--datadir=~/.ethereum/devchain --rpccorsdomain="*" --networkid=456719 --rpc --bootnodes="enode://288b97262895b1c7ec61cf314c2e2004407d0a5dc77566877aad1f2a36659c8b698f4b56fd06c4a0c0bf007b4cfb3e7122d907da3b005fa90e724441902eb19e@XXX:30303"'
+  netstats:
+    build: eth-netstats
+    restart: on-failure
+    container_name: netstats
+    environment:
+      - WS_SECRET=eth-net-stats-secret
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "3000:3000"
 
   btcnode:
     image: ruimarinho/bitcoin-core:0.15-alpine
@@ -86,7 +128,8 @@ services:
       BITCOIN_HOST: "btcnode"
       BITCOIN_PORT: 18332
       BITCOIN_WALLET_PASSPHRASE: "nopassphrase"
-      ETHEREUM_HOST: "ethnode"
+      # ETHEREUM_HOST: "ethnode"
+      ETHEREUM_HOST: "bootstrap"
       ETHEREUM_PORT: 8545
     volumes:
       - ${PWD-.}/app:/usr/src/app
@@ -96,8 +139,9 @@ services:
       - postgres
       - redis
       - btcnode
-      - ethnode
       - contracts
+      - bootstrap
+      # - ethnode
 
   contracts:
     build: ./contracts
@@ -105,7 +149,8 @@ services:
       - ${PWD-.}/contracts:/dapp
 #    entrypoint: /bin/sh truffle.sh
     environment:
-      RPC_HOST: "ethnode"
+      # RPC_HOST: "ethnode"
+      RPC_HOST: "bootstrap"
       RPC_PORT: 8545
       DEPLOYER_ADDRESS: "0x1ebd93ff2fc90b873a68e16b931a7c66e2237e31"
       DEPLOYER_PASSPHRASE: "nopassphrase"
@@ -113,4 +158,5 @@ services:
       - "8080:8080"
       - "7000:7000"
     depends_on:
-      - ethnode
+      # - ethnode
+      - bootstrap
