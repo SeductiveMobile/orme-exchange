@@ -131,6 +131,8 @@ services:
       # ETHEREUM_HOST: "ethnode"
       ETHEREUM_HOST: "bootstrap"
       ETHEREUM_PORT: 8545
+      REDIS_HOST: 'redis'
+      REDIS_PORT: 6379
     volumes:
       - ${PWD-.}/app:/usr/src/app
     ports:
