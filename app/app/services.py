@@ -13,15 +13,23 @@ from tasks import app
 class ORVService(object):
 
     def __init__(self, address):
+        """ORV Service constructor
+
+        Args
+            address (str): address (public key) to make operations on
+
+        """
         self.address = address
 
     def sync(self):
-        # Runs on demand
+        """Synchronize ORV address(wallet) on bitcoin blockchain with local database.
+            Normally runs be scheduler.
+            Step 1: Get wallet by address from database
+            Step 2: Check wallet balance via bitcoin client
+            Step 3: if balance changed - update it locally (otherwise just update updated_at field)
+            Step 4: if balance changed - trigger appropriate smart contract via ETH client
 
-        # Step 1: Get wallet by address from database
-        # Step 2: Check wallet balance via bitcoin client
-        # Step 3: if balance changed - update it locally (otherwise just update updated_at field)
-        # Step 4: if balance changed - trigger appropriate smart contract via ETH client
+        """
         addr = db.session.query(Address).filter_by(address=self.address).first()
         if addr:
             blockchain_address = BTCAddress(self.address)
@@ -41,11 +49,13 @@ class ORVService(object):
 
     @classmethod
     def check_for_updates(cls):
-        """Spawn synchronization of each ORV bitcoin wallet"""
+        """Spawn synchronization of each ORV bitcoin wallet
 
-        # Runs periodically
-        # Step 1: Get all ORV wallets from database
-        # Step 2: Spawn sync_orv() job for each wallet
+            Runs periodically:
+                Step 1: Get all ORV wallets from database
+                Step 2: Spawn sync_orv() job for each wallet
+
+        """
         query = db.session.query(Address).filter(Address.wallet_type == 'orv').order_by(Address.id)
         addresses = query.all()
         results = []
@@ -58,15 +68,23 @@ class ORVService(object):
 class UserWalletsService(object):
 
     def __ini__(self, address):
+        """User Wallets Service constructor
+
+        Args
+            address (str): address (public key) to make operations on
+
+        """
         self.address = address
 
     @classmethod
     def check_for_updates(cls):
-        """Spawn synchronization of each user bitcoin wallet"""
+        """Spawn synchronization of each user bitcoin wallet
 
-        # Runs periodically
-        # Step 1: Get all users bitcoin wallets
-        # Step 2: Spawn sync_user_bitcoins() job for each wallet
+            Runs periodically:
+                Step 1: Get all users bitcoin wallets
+                Step 2: Spawn sync_user_bitcoins() job for each wallet
+
+        """
         query = db.session.query(Address). \
             filter(Address.wallet_type == 'user'). \
             filter(Address.currency == 'bitcoin'). \
@@ -81,12 +99,14 @@ class UserWalletsService(object):
 
 
 def sync(self):
-    # Runs on demand
+    """Synchronize user address(wallet) on bitcoin blockchain with local database.
+        Normally runs by scheduler.
+        Step 1: Step 1: get wallet by address from database
+        Step 2: Check wallet balance via bitcoin client
+        Step 3: if balance > 0 - transfer all funds to ORV wallet
+        Step 4: if balance > 0 - trigger appropriate smart contract via ETH client
 
-    # Step 1: get wallet by address from database
-    # Step 2: check wallet balance via bitcoin client
-    # Step 3: if balance > 0 - transfer all funds to ORV wallet
-    # Step 4: if balance > 0 - trigger appropriate smart contract via ETH client
+    """
     addr = db.session.query(Address).filter_by(address=self.address).first()
     if addr:
         blockchain_address = BTCAddress(self.address)
