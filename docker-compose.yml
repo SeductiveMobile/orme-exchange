@@ -143,7 +143,39 @@ services:
       - btcnode
       - contracts
       - bootstrap
-      # - ethnode
+
+  worker:
+    build: ./app
+    # TODO: Separate Celery and Celery Beat into separate containers http://docs.celeryproject.org/en/latest/userguide/periodic-tasks.html
+    command: celery -A app worker -B
+    # TODO: Move environment section out of worker and app containers to separate YML and extend it here
+    environment:
+      DATABASE_NAME: "orme_development"
+      DATABASE_USER: "postgres"
+      DATABASE_PASSWORD: ""
+      DATABASE_HOST: "postgres"
+      DATABASE_PORT: "5432"
+      FLASK_APP: "orme"
+      FLASK_DEBUG: 1
+      ORV_WALLET_ADDRESS: ""
+      BITCOIN_USER: "myuser"
+      BITCOIN_PASSWORD: "mypassword"
+      BITCOIN_HOST: "btcnode"
+      BITCOIN_PORT: 18332
+      BITCOIN_WALLET_PASSPHRASE: "nopassphrase"
+      ETHEREUM_HOST: "bootstrap"
+      ETHEREUM_PORT: 8545
+      REDIS_HOST: 'redis'
+      REDIS_PORT: 6379
+    volumes:
+      - ${PWD-.}/app:/usr/src/app
+    depends_on:
+      - postgres
+      - redis
+      - btcnode
+      - contracts
+      - bootstrap
+
 
   contracts:
     build: ./contracts

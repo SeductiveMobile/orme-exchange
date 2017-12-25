@@ -1,4 +1,4 @@
-import db
+from .db import Base, Session, engine
 from sqlalchemy import Column, Integer, String, Enum, DateTime
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
@@ -6,7 +6,7 @@ import base64
 import datetime
 
 
-class User(db.Base):
+class User(Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
     email = Column(String, nullable=False, unique=True)
@@ -45,7 +45,7 @@ class User(db.Base):
         return base64.b64decode(password_hash).decode('utf-8')
 
 
-class Address(db.Base):
+class Address(Base):
     __tablename__ = 'addresses'
     id = Column(Integer, primary_key=True)
     address = Column(String, unique=True)
@@ -62,7 +62,7 @@ class Address(db.Base):
 
 User.addresses = relationship("Address", order_by=Address.id, back_populates="user")
 
-db.Base.metadata.create_all(db.engine)
+Base.metadata.create_all(engine)
 
 # test_user = User(email='123@example.com', password_hash=User.encode_password('123456'))
 # db.session.add(test_user)

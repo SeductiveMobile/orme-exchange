@@ -4,10 +4,10 @@
 
 import os
 
-import db
-from btc_client import Address as BTCAddress
-from models import Address
-from tasks import app
+from .btc_client import Address as BTCAddress
+from .db import session
+from .models import Address
+from .tasks import app
 
 
 class ORVService(object):
@@ -30,7 +30,7 @@ class ORVService(object):
             Step 4: if balance changed - trigger appropriate smart contract via ETH client
 
         """
-        addr = db.session.query(Address).filter_by(address=self.address).first()
+        addr = session.query(Address).filter_by(address=self.address).first()
         if addr:
             blockchain_address = BTCAddress(self.address)
             if not blockchain_address.is_valid():
@@ -43,7 +43,7 @@ class ORVService(object):
                 pass
 
             addr.balance = balance
-            db.session.commit()
+            session.commit()
         else:
             raise ValueError("bitcoin address %s not found in the database" % self.address)
 
@@ -56,7 +56,7 @@ class ORVService(object):
                 Step 2: Spawn sync_orv() job for each wallet
 
         """
-        query = db.session.query(Address).filter(Address.wallet_type == 'orv').order_by(Address.id)
+        query = session.query(Address).filter(Address.wallet_type == 'orv').order_by(Address.id)
         addresses = query.all()
         results = []
         for item in addresses:
@@ -85,7 +85,7 @@ class UserWalletsService(object):
                 Step 2: Spawn sync_user_bitcoins() job for each wallet
 
         """
-        query = db.session.query(Address). \
+        query = session.query(Address). \
             filter(Address.wallet_type == 'user'). \
             filter(Address.currency == 'bitcoin'). \
             order_by(Address.id)
@@ -107,7 +107,7 @@ def sync(self):
         Step 4: if balance > 0 - trigger appropriate smart contract via ETH client
 
     """
-    addr = db.session.query(Address).filter_by(address=self.address).first()
+    addr = session.query(Address).filter_by(address=self.address).first()
     if addr:
         blockchain_address = BTCAddress(self.address)
         if not blockchain_address.is_valid():
@@ -123,6 +123,6 @@ def sync(self):
 
             # Update wallet status
             addr.balance = 0
-            db.session.commit()
+            session.commit()
     else:
         raise ValueError("bitcoin address %s not found in the database" % self.address)
