@@ -47,26 +47,32 @@ class EthereumClient(object):
     def new_address(self, passphrase):
         """Generate new Ethereum address with specified password and return the address
 
-        Keyword arguments:
-        passphrase -- passphrase to be used for new address (account)
+        Args:
+            passphrase (str): passphrase to be used for new address (account)
+
+        Returns:
+            Address (public key) string
+
         """
         return self.connection.personal.newAccount(passphrase)
 
     def lock_address(self, address):
         """Lock specific address
 
-        Keyword arguments:
-        address -- address public key
+        Args:
+            address (str): address public key
+
         """
         return self.connection.personal.lockAccount(address)
 
     def unlock_address(self, address, passphrase, duration=60):
         """Unlock specific address with passphrase for number of seconds. Returns boolean.
 
-        Keyword arguments:
-        address -- address public key
-        passphrase -- address unlock passphrase
-        duration -- unlock duration in seconds, default is 60
+        Args:
+            address (str): address public key
+            passphrase (str): address unlock passphrase
+            duration (Optional[int]) unlock duration in seconds, default is 60
+
         """
         return self.connection.personal.unlockAccount(address, passphrase, duration)
 
@@ -76,16 +82,18 @@ class EthereumClient(object):
     def address_balance(self, address):
         """Check balance fore specific address
 
-        Keyword arguments:
-        address -- address public key
+        Args:
+            address (str): address public key
+
         """
         return self.connection.eth.getBalance(address)
 
     def get_block(self, block_number='latest'):
         """Get block data
 
-        Keyword arguments:
-        block_number -- block_number
+        Args:
+            block_number (Optional[int]): block number, uses latest if not specified
+
         """
         return self.connection.eth.getBlock(block_number)
 
@@ -103,22 +111,36 @@ class Address(object):
     def __init__(self, client, address=None, passphrase=None):
         """Address class constructor.
 
-        Keyword arguments:
-        client -- ethereum client handler
-        address -- (optional) actual address we're working on
+        Args:
+            client (EthereumClient): ethereum client handler
+            address (Optional[str]): actual address we're working on
+
         """
         self.address = address
         self.client = client
         self.passphrase = passphrase
 
     def register(self):
-        """Register new address in the blockchain and fetch its private key. Returns false if failed."""
+        """Register new address in the blockchain and fetch its private key. Returns false if failed.
+
+        Returns:
+            The return value. True for success, False otherwise.
+
+        """
         if self.address is None and self.passphrase is not None:
             self.address = self.client.new_address(self.passphrase)
             return True
         return False
 
+
 class Contract(object):
+    """Ethereum Smart Contract representation class
+
+        It is assumed you'll subclass this class for each of your contracts
+        and implement appropriate .transact(), .call(), .estimateGas() methods there.
+        See http://web3py.readthedocs.io/en/stable/contracts.html for details
+
+    """
 
     client = None
 
@@ -132,13 +154,14 @@ class Contract(object):
     def __init__(self, client, address):
         """Contract class constructor.
 
-        Keyword arguments:
-        client -- ethereum client handler
-        address -- contract actual address we're working on
+        Args:
+            client (EthereumClient): ethereum client handler
+            address (str): contract actual address we're working on
+
         """
         self.address = address
         self.client = client
-        self.handler = self.__contract_handler()
+        self.handler = self._contract_handler()
 
-    def __contract_handler(self):
+    def _contract_handler(self):
         return self.client.fetch_contract(self.address)
