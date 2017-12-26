@@ -6,7 +6,7 @@ import os
 
 from .btc_client import Address as BTCAddress
 from .db import session
-from .models import Address
+from .models import Address, User
 from .tasks import app
 
 
@@ -126,3 +126,40 @@ def sync(self):
             session.commit()
     else:
         raise ValueError("bitcoin address %s not found in the database" % self.address)
+
+
+class UserService(object):
+    def __init__(self, id=None):
+        self.id = id
+
+    @classmethod
+    def register_user(email, password):
+        """Register user
+
+        Args
+            email (str): user email
+            password (str): user password
+        Returns
+            User: created user model object
+        Raises
+            ValueError: if was not able to register bitcoin wallet for new user
+        """
+        user = User(email=email, password_hash=User.encode_password(password))
+        session.add(user)
+
+        # Create wallets for user
+        btc_addr = BTCAddress()
+        if btc_addr.register():
+            address = Address(
+                address=btc_addr.addresspublic_key,
+                currency='bitcoin',
+                wallet_type='user',
+                password=btc_addr.private_key,
+                user=user
+            )
+            session.add(address)
+        else:
+            raise ValueError("cannot register bitcoin wallet for user %s" % email)
+
+        session.commit()
+        return user

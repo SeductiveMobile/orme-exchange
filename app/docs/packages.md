@@ -4,7 +4,14 @@
 * ipython
 * web3
 * python-bitcoinrpc
+* web3
 * requests
+* sqlalchemy
+* sqlalchemy-utils
+* alembic
+* celery
+* redis
+* psycopg2
 
 
 ## Uninstall all packages

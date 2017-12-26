@@ -49,7 +49,7 @@ class Address(Base):
     __tablename__ = 'addresses'
     id = Column(Integer, primary_key=True)
     address = Column(String, unique=True)
-    balance = Column(Integer)
+    balance = Column(Integer, default=0)
     currency = Column(Enum('bitcoin', 'ethereum', name='currency_types'))
     wallet_type = Column(Enum('orv', 'user', name='wallet_types'))
     created_at = Column(DateTime, default=datetime.datetime.utcnow())
