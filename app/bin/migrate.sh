@@ -11,3 +11,6 @@ python bin/migrate.py
 
 # Afterwards run usual alembic migrations
 alembic upgrade head
+
+# Running database seed
+python bin/seed.py
