@@ -113,14 +113,15 @@ services:
 
   app:
     build: ./app
-    command: python app/serve.py
+#    command: python orme/serve.py
+    command: flask run --host 0.0.0.0 --port 8000
     environment:
       DATABASE_NAME: "orme_development"
       DATABASE_USER: "postgres"
       DATABASE_PASSWORD: ""
       DATABASE_HOST: "postgres"
       DATABASE_PORT: "5432"
-      FLASK_APP: "orme"
+      FLASK_APP: "orme/serve.py"
       FLASK_DEBUG: 1
       ORV_WALLET_ADDRESS: ""
       BITCOIN_USER: "myuser"
@@ -154,7 +155,6 @@ services:
       DATABASE_PASSWORD: ""
       DATABASE_HOST: "postgres"
       DATABASE_PORT: "5432"
-      FLASK_APP: "orme"
       FLASK_DEBUG: 1
       ORV_WALLET_ADDRESS: ""
       BITCOIN_USER: "myuser"
@@ -167,8 +167,8 @@ services:
       ETHEREUM_PORT: 8545
       REDIS_HOST: 'redis'
       REDIS_PORT: 6379
-#    volumes:
-#      - ${PWD-.}/app:/usr/src/app
+    volumes:
+      - ${PWD-.}/app:/usr/src/app
     depends_on:
       - postgres
       - redis
@@ -179,7 +179,7 @@ services:
   worker:
     build: ./app
     # TODO: Separate Celery and Celery Beat into separate containers http://docs.celeryproject.org/en/latest/userguide/periodic-tasks.html
-    command: celery -A app worker -B
+    command: celery -A orme worker -B -l info
     # TODO: Move environment section out of worker and app containers to separate YML and extend it here
     environment:
       DATABASE_NAME: "orme_development"
@@ -187,7 +187,6 @@ services:
       DATABASE_PASSWORD: ""
       DATABASE_HOST: "postgres"
       DATABASE_PORT: "5432"
-      FLASK_APP: "orme"
       FLASK_DEBUG: 1
       ORV_WALLET_ADDRESS: ""
       BITCOIN_USER: "myuser"

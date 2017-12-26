@@ -2,12 +2,14 @@
 # Services should manipulate models
 # Services should be called from controllers and tasks
 
+from __future__ import absolute_import, unicode_literals
 import os
 
-from .btc_client import Address as BTCAddress
-from .db import session
-from .models import Address, User
-from .tasks import app
+from orme.btc_client import Address as BTCAddress
+from orme.btc_client import BitcoinClient
+from orme.db import session
+from orme.models import Address, User
+from orme.tasks import app
 
 
 class ORVService(object):
@@ -133,7 +135,7 @@ class UserService(object):
         self.id = id
 
     @classmethod
-    def register_user(email, password):
+    def register_user(cls, email, password):
         """Register user
 
         Args
@@ -148,10 +150,11 @@ class UserService(object):
         session.add(user)
 
         # Create wallets for user
-        btc_addr = BTCAddress()
+        btc_client = BitcoinClient()
+        btc_addr = BTCAddress(btc_client)
         if btc_addr.register():
             address = Address(
-                address=btc_addr.addresspublic_key,
+                address=btc_addr.public_key,
                 currency='bitcoin',
                 wallet_type='user',
                 password=btc_addr.private_key,

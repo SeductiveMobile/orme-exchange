@@ -4,10 +4,10 @@
 import os
 import sys
 
-sys.path.append(os.path.abspath(os.path.join('..', 'app')))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '.'))
 
-import app.db
-import app.models
+# import orme.db
+# import orme.models
 
 
 # Database Seed script

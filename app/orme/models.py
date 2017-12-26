@@ -1,4 +1,5 @@
-from .db import Base, Session, engine
+from __future__ import absolute_import, unicode_literals
+from orme.db import Base, Session, engine
 from sqlalchemy import Column, Integer, String, Enum, DateTime
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship

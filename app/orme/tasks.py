@@ -1,5 +1,10 @@
+from __future__ import absolute_import, unicode_literals
+# from orme.celery import app
 from .celery import app
-from .services import ORVService, UserWalletsService
+
+# raise ValueError(app.conf)
+# from orme.services import ORVService, UserWalletsService
+# from .services import ORVService, UserWalletsService
 
 
 @app.on_after_configure.connect
@@ -12,21 +17,21 @@ def setup_periodic_tasks(sender, **kwargs):
     :return: None
     """
     # Calls check_orv_wallets() every 600 seconds.
-    sender.add_periodic_task(600.0, check_orv_wallets.s('no argument'), name='add every 10 minutes')
+    sender.add_periodic_task(600.0, check_orv_wallets.s(), name='Check ORV wallets every 10 minutes')
 
     # Calls check_user_wallets() every 600 seconds.
-    sender.add_periodic_task(600.0, check_user_wallets.s('no argument'), name='add every 10 minutes')
+    sender.add_periodic_task(600.0, check_user_wallets.s(), name='Check User wallets every 10 minutes')
 
 
 @app.task
-def check_orv_wallets(arg):
-    # print('check_orv_wallets')
+def check_orv_wallets():
+    print('check_orv_wallets')
     return ORVService.check_for_updates()
 
 
 @app.task
-def check_user_wallets(arg):
-    # print('check_user_wallets')
+def check_user_wallets():
+    print('check_user_wallets')
     return UserWalletsService.check_for_updates()
 
 

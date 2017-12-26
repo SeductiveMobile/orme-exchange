@@ -5,6 +5,7 @@ Revises:
 Create Date: 2017-12-26 13:44:01.451352
 
 """
+import datetime
 from alembic import op
 import sqlalchemy as sa
 
@@ -20,7 +21,9 @@ def upgrade():
         'users',
         sa.Column('id', sa.Integer, primary_key=True),
         sa.Column('email', sa.String(255), nullable=False, unique=True),
-        sa.Column('password_hash', sa.String(255), nullable=False)
+        sa.Column('password_hash', sa.String(255), nullable=False),
+        sa.Column('created_at', sa.DateTime, default=datetime.datetime.utcnow()),
+        sa.Column('updated_at', sa.DateTime, default=datetime.datetime.utcnow(), onupdate=datetime.datetime.utcnow()),
     )
 
 

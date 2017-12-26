@@ -1,6 +1,11 @@
-from eth_client import EthereumClient
-from btc_client import BitcoinClient
-from services import UserService
+from __future__ import absolute_import, unicode_literals
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..',)))
+
+from orme.eth_client import EthereumClient
+from orme.btc_client import BitcoinClient
+from orme.services import UserService
 from flask import Flask
 from flask import jsonify
 from flask import request
@@ -38,7 +43,20 @@ def create_user():
     content = request.get_json(silent=True)
     if 'email' in content and 'password' in content:
         user = UserService.register_user(content['email'], content['password'])
-        return jsonify(user)
+        response = {
+            'id': user.id,
+            'email': user.email,
+            'created_at': user.created_at,
+            'updated_at': user.updated_at,
+            'addresses': [],
+        }
+        for address in user.addresses:
+            addr = {
+                'address': address.address,
+                'balance': address.balance
+            }
+            response['addresses'].append(addr)
+        return jsonify(response)
     else:
         errors = [{'user': 'cannot create user for unknown reason'}]
         response = jsonify(errors)
