@@ -176,7 +176,6 @@ services:
       - contracts
       - bootstrap
 
-
   contracts:
     build: ./contracts
     volumes:

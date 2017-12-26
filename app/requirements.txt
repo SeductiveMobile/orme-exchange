@@ -1,3 +1,4 @@
+alembic==0.9.6
 amqp==2.2.2
 billiard==3.5.0.3
 celery==4.1.0
@@ -19,6 +20,7 @@ itsdangerous==0.24
 jedi==0.11.1
 Jinja2==2.10
 kombu==4.1.0
+Mako==1.0.7
 MarkupSafe==1.0
 parso==0.1.1
 pexpect==4.3.1
@@ -31,6 +33,8 @@ Pygments==2.2.0
 pylru==1.0.9
 pysha3==1.0.2
 python-bitcoinrpc==1.0
+python-dateutil==2.6.1
+python-editor==1.0.3
 pytz==2017.3
 redis==2.10.6
 requests==2.18.4

@@ -62,7 +62,8 @@ class Address(Base):
 
 User.addresses = relationship("Address", order_by=Address.id, back_populates="user")
 
-Base.metadata.create_all(engine)
+# Do not create all using metadata, since structure is created via Alembic migrations
+# Base.metadata.create_all(engine)
 
 # test_user = User(email='123@example.com', password_hash=User.encode_password('123456'))
 # db.session.add(test_user)
