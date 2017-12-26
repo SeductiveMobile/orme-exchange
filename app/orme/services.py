@@ -22,13 +22,11 @@ app = Celery('orme', broker=broker)
 
 @app.task
 def check_orv_wallets():
-    print('check_orv_wallets')
     return ORVService.check_for_updates()
 
 
 @app.task
 def check_user_wallets():
-    print('check_user_wallets')
     return UserWalletsService.check_for_updates()
 
 
