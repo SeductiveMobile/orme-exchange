@@ -1,4 +1,4 @@
-# README #
+# README
 
 To install dependencies run in terminal:
 $ truffle install zeppelin
@@ -31,3 +31,13 @@ $ truffle test
 
 * Repo owner or admin
 * Other community or team contact
+
+## Mining
+
+You need gas for running contracts operations. Gas is not free, you should have Ethereum in the wallet to use gas.
+In order to get ethereum you should enable mining. At first you need to connect to Ethereum console:
+`docker exec -it ormeexchange_eth_1 geth attach ipc://root/.ethereum/devchain/geth.ipc`
+
+Inside console you should run `miner.start(1)` to start mining using a single thread of your CPU.
+You could check current mining status on http://localhost:3000
+Mining takes lot of CPU resources, so once you have enough ethereum/gas you can turn it off by typing `miner.stop()` in Ethereum console.

@@ -20,21 +20,25 @@ def setup_periodic_tasks(sender, **kwargs):
 
 @app.task
 def check_orv_wallets(arg):
+    # print('check_orv_wallets')
     return ORVService.check_for_updates()
 
 
 @app.task
 def check_user_wallets(arg):
+    # print('check_user_wallets')
     return UserWalletsService.check_for_updates()
 
 
 @app.task
 def sync_orv_wallet(address):
+    # print('sync_orv_wallet')
     service = ORVService(address)
     return service.sync()
 
 
 @app.task
 def sync_user_wallet(address):
+    # print('sync_user_wallet')
     service = UserWalletsService(address)
     return service.sync()
