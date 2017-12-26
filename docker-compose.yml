@@ -143,6 +143,38 @@ services:
       - btcnode
       - contracts
       - bootstrap
+      - app_setup
+
+  app_setup:
+    build: ./app
+    command: /bin/sh bin/migrate.sh
+    environment:
+      DATABASE_NAME: "orme_development"
+      DATABASE_USER: "postgres"
+      DATABASE_PASSWORD: ""
+      DATABASE_HOST: "postgres"
+      DATABASE_PORT: "5432"
+      FLASK_APP: "orme"
+      FLASK_DEBUG: 1
+      ORV_WALLET_ADDRESS: ""
+      BITCOIN_USER: "myuser"
+      BITCOIN_PASSWORD: "mypassword"
+      BITCOIN_HOST: "btcnode"
+      BITCOIN_PORT: 18332
+      BITCOIN_WALLET_PASSPHRASE: "nopassphrase"
+      # ETHEREUM_HOST: "ethnode"
+      ETHEREUM_HOST: "bootstrap"
+      ETHEREUM_PORT: 8545
+      REDIS_HOST: 'redis'
+      REDIS_PORT: 6379
+#    volumes:
+#      - ${PWD-.}/app:/usr/src/app
+    depends_on:
+      - postgres
+      - redis
+      - btcnode
+      - contracts
+      - bootstrap
 
   worker:
     build: ./app
@@ -175,6 +207,7 @@ services:
       - btcnode
       - contracts
       - bootstrap
+      - app_setup
 
   contracts:
     build: ./contracts

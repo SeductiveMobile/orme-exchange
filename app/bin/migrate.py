@@ -9,10 +9,8 @@ sys.path.append(os.path.abspath(os.path.join('..', 'app')))
 import app.db
 import app.models
 
+
 # Custom migration script
 #
-# Steps to do withing migrate script
-# 1. Create SQL database if not exist;
-# 2. Migrate SQL database;
-# 3. Seed initial data in Ethereum and Bitcoin nodes;
-# 4. Seed initial data in SQL database;
+# Runs before database migrations
+# May be used for setting up initial Bitcoin/Ethereum data, e.g. creating some wallets, etc

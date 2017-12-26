@@ -3,7 +3,7 @@ FROM python:3.6-slim
 #FROM python:2
 
 # Installing dependencies
-RUN apt-get update && apt-get install -y build-essential
+RUN apt-get update && apt-get install -y build-essential netcat-openbsd
 
 # Setting up codebase directory
 ENV APP_HOME /usr/src/app
