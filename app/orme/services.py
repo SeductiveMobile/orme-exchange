@@ -3,13 +3,63 @@
 # Services should be called from controllers and tasks
 
 from __future__ import absolute_import, unicode_literals
+
 import os
 
+# from orme.celery import app
+from celery import Celery
 from orme.btc_client import Address as BTCAddress
 from orme.btc_client import BitcoinClient
 from orme.db import session
 from orme.models import Address, User
-from orme.tasks import app
+
+# from celery import Celery
+
+broker = "redis://%s:%s/0" % (os.environ["REDIS_HOST"], os.environ["REDIS_PORT"])
+# app = Celery('orme', broker=broker, include=['orme.services'])
+app = Celery('orme', broker=broker)
+
+
+@app.task
+def check_orv_wallets():
+    print('check_orv_wallets')
+    return ORVService.check_for_updates()
+
+
+@app.task
+def check_user_wallets():
+    print('check_user_wallets')
+    return UserWalletsService.check_for_updates()
+
+
+@app.task
+def sync_orv_wallet(address):
+    # print('sync_orv_wallet')
+    service = ORVService(address)
+    return service.sync()
+
+
+@app.task
+def sync_user_wallet(address):
+    # print('sync_user_wallet')
+    service = UserWalletsService(address)
+    return service.sync()
+
+
+@app.on_after_configure.connect
+def setup_periodic_tasks(sender, **kwargs):
+    """ Periodic tasks via Celery Beat
+    See examples at http://docs.celeryproject.org/en/latest/userguide/periodic-tasks.html
+
+    :param sender: internally used param
+    :param kwargs: not used
+    :return: None
+    """
+    # Calls check_orv_wallets() every 600 seconds.
+    sender.add_periodic_task(600.0, check_orv_wallets.s(), name='Check ORV wallets every 10 minutes')
+
+    # Calls check_user_wallets() every 600 seconds.
+    sender.add_periodic_task(600.0, check_user_wallets.s(), name='Check User wallets every 10 minutes')
 
 
 class ORVService(object):
@@ -166,3 +216,7 @@ class UserService(object):
 
         session.commit()
         return user
+
+
+if __name__ == '__main__':
+    app.start()
