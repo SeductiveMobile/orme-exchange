@@ -42,6 +42,7 @@ class EthereumClient(object):
             # "newly_created_address": addr.address,
             # "rinkeby_balance": self.address_balance('0xd9fea4ca882344050f4c6d64bc74a973087a5947')
         }
+
         return data_hash
 
     def new_address(self, passphrase):
@@ -96,6 +97,43 @@ class EthereumClient(object):
 
         """
         return self.connection.eth.getBlock(block_number)
+
+    def send(self, from_addr, to_addr, amount):
+        """Send funds from one address to another
+
+        Args:
+            from_addr: sender address
+            to_addr: receiver address
+            amount: amount to send (in Wei)
+
+        Returns:
+            transaction id
+
+        """
+        tx = {
+            'to': to_addr,
+            'from': from_addr,
+            'value': amount
+        }
+        return self.connection.eth.sendTransaction(tx)
+
+    def seed(self, amount=10000000000000000000):
+        """Seed initial data. Note, this method is used only for development purposes and won't work in production.
+
+        Args:
+            amount: amount to send (in Wei)
+
+        Returns:
+            transaction id
+
+        """
+
+        # Send initial funds from coinbase to last address
+        from_addr = self.info.accounts[0]
+        to_addr = self.info.accounts[-1]
+        self.unlock_address(from_addr, "")
+        tx = self.send(from_addr, to_addr, amount)
+        return tx
 
 
 class Address(object):
