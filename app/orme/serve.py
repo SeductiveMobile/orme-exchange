@@ -1,7 +1,7 @@
 from __future__ import absolute_import, unicode_literals
 import os
 import sys
-
+from datetime import datetime, timedelta
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', )))
 
 from orme.eth_client import EthereumClient
@@ -15,10 +15,8 @@ from flask_jwt import JWT, jwt_required, current_identity
 
 
 # JWT Auth handler
-def authenticate(username, password):
-    user = SessionsService.email_login(username, password)
-    print("="*80)
-    print(user)
+def authenticate(email, password):
+    user = SessionsService.email_login(email, password)
     return user
 
 
@@ -31,8 +29,15 @@ def identity(payload):
 
 
 app = Flask(__name__)
-# TODO: get secret key from ENV
-app.config['SECRET_KEY'] = 'super-secret'
+app.config['SECRET_KEY'] = os.environ["SECRET_KEY"]
+# Default username key is just 'username'
+app.config['JWT_AUTH_USERNAME_KEY'] = 'email'
+# Default prefix is JWT which is not standard for JWT
+app.config['JWT_AUTH_HEADER_PREFIX'] = 'Bearer'
+# Default time delta is just 5 minutes, setting it to 1 hour
+app.config['JWT_EXPIRATION_DELTA'] = timedelta(seconds=60*60)
+
+
 jwt = JWT(app, authenticate, identity)
 
 
@@ -148,14 +153,14 @@ def create_session():
     return response
 
 
-@app.route('/api/sessions', methods=['DELETE'])
-@jwt_required()
-def delete_session():
-    # TODO: Log out logic here
-
-    response = jsonify({})
-    response.status_code = 204
-    return response
+# @app.route('/api/sessions', methods=['DELETE'])
+# @jwt_required()
+# def delete_session():
+#     # TODO: Log out logic here
+#
+#     response = jsonify({})
+#     response.status_code = 204
+#     return response
 
 
 # send CORS headers

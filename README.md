@@ -44,6 +44,6 @@ Mining takes lot of CPU resources, so once you have enough ethereum/gas you can 
 
 ## Application login via JSON Web Tokens
 
-1. Get authentication token by POSTing into http://localhost:8000/auth a JSON with 'username' and 'password' fields. Username is an e-mail.
+1. Get authentication token by POSTing into http://localhost:8000/auth a JSON with 'email' and 'password' fields.
 2. You should get a JSON with access_token variable.
-3. For each protected resource you shuld provide "Authorization" header of 'JWT <access_token>' format.
+3. For each protected resource you shuld provide "Authorization" header of 'Bearer <access_token>' format.
