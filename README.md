@@ -41,3 +41,9 @@ In order to get ethereum you should enable mining. At first you need to connect 
 Inside console you should run `miner.start(1)` to start mining using a single thread of your CPU.
 You could check current mining status on http://localhost:3000
 Mining takes lot of CPU resources, so once you have enough ethereum/gas you can turn it off by typing `miner.stop()` in Ethereum console.
+
+## Application login via JSON Web Tokens
+
+1. Get authentication token by POSTing into http://localhost:8000/auth a JSON with 'username' and 'password' fields. Username is an e-mail.
+2. You should get a JSON with access_token variable.
+3. For each protected resource you shuld provide "Authorization" header of 'JWT <access_token>' format.

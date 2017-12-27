@@ -13,6 +13,7 @@ eth-keys==0.1.0b3
 eth-tester==0.1.0b7
 eth-utils==0.7.3
 Flask==0.12.2
+Flask-JWT==0.3.2
 idna==2.6
 ipython==6.2.1
 ipython-genutils==0.2.0
@@ -32,6 +33,7 @@ psycopg2==2.7.3.2
 ptyprocess==0.5.2
 pycryptodome==3.4.7
 Pygments==2.2.0
+PyJWT==1.4.2
 pylru==1.0.9
 pysha3==1.0.2
 python-bitcoinrpc==1.0

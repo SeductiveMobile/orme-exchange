@@ -253,5 +253,23 @@ class UserService(object):
         return user
 
 
+class SessionsService(object):
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def email_login(email, password):
+        query = session.query(User).filter(User.email == email)
+        user = query.one_or_none()
+        if not user:
+            # Probably we could raise error here: e-mail not found
+            return None
+        hashed_password = User.encode_password(password)
+        if hashed_password == user.password_hash:
+            return user
+
+        return None
+
+
 if __name__ == '__main__':
     app.start()
