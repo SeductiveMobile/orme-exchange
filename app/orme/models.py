@@ -3,8 +3,8 @@ from __future__ import absolute_import, unicode_literals
 import base64
 import datetime
 
+from marshmallow import fields
 from marshmallow_sqlalchemy import ModelSchema
-from marshmallow import Schema, fields, pprint
 from orme.db import Base
 from sqlalchemy import Column, Integer, String, Enum, DateTime
 from sqlalchemy import ForeignKey

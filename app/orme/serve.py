@@ -1,14 +1,15 @@
 from __future__ import absolute_import, unicode_literals
+
 import os
 import sys
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', )))
 
 from orme.eth_client import EthereumClient
 from orme.btc_client import BitcoinClient
 from orme.services import UserService, SessionsService
-from orme.models import User, Address, UserSchema, AddressSchema
+from orme.models import UserSchema
 from flask import Flask
 from flask import jsonify
 from flask import request

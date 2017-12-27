@@ -5,7 +5,6 @@
 from __future__ import absolute_import, unicode_literals
 
 import os
-import datetime
 
 # from orme.celery import app
 from celery import Celery

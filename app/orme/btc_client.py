@@ -1,6 +1,7 @@
 import os
+
 import requests
-from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
+from bitcoinrpc.authproxy import AuthServiceProxy
 
 
 class BitcoinClient(object):
