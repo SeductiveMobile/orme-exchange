@@ -1,11 +1,13 @@
 from __future__ import absolute_import, unicode_literals
 import os
 import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..',)))
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', )))
 
 from orme.eth_client import EthereumClient
 from orme.btc_client import BitcoinClient
 from orme.services import UserService
+from orme.models import User, Address, UserSchema, AddressSchema
 from flask import Flask
 from flask import jsonify
 from flask import request
@@ -30,33 +32,39 @@ def home():
 
 @app.route('/api/users', methods=['GET'])
 def list_users():
-    pass
+    srv = UserService()
+    users = srv.find_all()
+    schema = UserSchema(many=True)
+    result = schema.dump(users)
+
+    response = jsonify(result.data)
+    response.status_code = 200
+    return response
 
 
 @app.route('/api/users/<id>', methods=['GET'])
-def show_user():
-    pass
+def show_user(id):
+    srv = UserService(int(id))
+    user = srv.find()
+    schema = UserSchema()
+    result = schema.dump(user)
+
+    response = jsonify(result.data)
+    response.status_code = 200
+    return response
 
 
 @app.route('/api/users', methods=['POST'])
 def create_user():
     content = request.get_json(silent=True)
     if 'email' in content and 'password' in content:
-        user = UserService.register_user(content['email'], content['password'])
-        response = {
-            'id': user.id,
-            'email': user.email,
-            'created_at': user.created_at,
-            'updated_at': user.updated_at,
-            'addresses': [],
-        }
-        for address in user.addresses:
-            addr = {
-                'address': address.address,
-                'balance': address.balance
-            }
-            response['addresses'].append(addr)
-        return jsonify(response)
+        user = UserService.create(content['email'], content['password'])
+        schema = UserSchema()
+        result = schema.dump(user)
+
+        response = jsonify(result.data)
+        response.status_code = 200
+        return response
     else:
         errors = [{'user': 'cannot create user for unknown reason'}]
         response = jsonify(errors)
@@ -65,13 +73,32 @@ def create_user():
 
 
 @app.route('/api/users/<id>', methods=['PUT'])
-def update_user():
-    pass
+def update_user(id):
+    content = request.get_json(silent=True)
+    if 'password' in content:
+        srv = UserService(int(id))
+        user = srv.update_password(content['password'])
+        schema = UserSchema()
+        result = schema.dump(user)
+
+        response = jsonify(result.data)
+        response.status_code = 200
+        return response
+    else:
+        errors = [{'user': 'password for user update not provided'}]
+        response = jsonify(errors)
+        response.status_code = 422
+        return response
 
 
 @app.route('/api/users/<id>', methods=['DELETE'])
-def delete_user():
-    pass
+def delete_user(id):
+    srv = UserService(int(id))
+    result = srv.delete()
+
+    response = jsonify({})
+    response.status_code = 204
+    return response
 
 
 if __name__ == '__main__':

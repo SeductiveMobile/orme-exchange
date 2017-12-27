@@ -5,6 +5,7 @@
 from __future__ import absolute_import, unicode_literals
 
 import os
+import datetime
 
 # from orme.celery import app
 from celery import Celery
@@ -44,6 +45,13 @@ def sync_user_wallet(address):
     return service.sync()
 
 
+@app.task
+def say_hello_to(name):
+    txt = "Hello, %s" % name
+    print(txt)
+    return txt
+
+
 @app.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
     """ Periodic tasks via Celery Beat
@@ -57,7 +65,7 @@ def setup_periodic_tasks(sender, **kwargs):
     sender.add_periodic_task(600.0, check_orv_wallets.s(), name='Check ORV wallets every 10 minutes')
 
     # Calls check_user_wallets() every 600 seconds.
-    sender.add_periodic_task(600.0, check_user_wallets.s(), name='Check User wallets every 10 minutes')
+    sender.add_periodic_task(599.0, check_user_wallets.s(), name='Check User wallets every 10 minutes')
 
 
 class ORVService(object):
@@ -183,7 +191,7 @@ class UserService(object):
         self.id = id
 
     @classmethod
-    def register_user(cls, email, password):
+    def create(cls, email, password):
         """Register user
 
         Args
@@ -194,7 +202,12 @@ class UserService(object):
         Raises
             ValueError: if was not able to register bitcoin wallet for new user
         """
-        user = User(email=email, password_hash=User.encode_password(password))
+        user = User(
+            email=email,
+            password_hash=User.encode_password(password),
+            # created_at=datetime.datetime.utcnow(),
+            # updated_at=datetime.datetime.utcnow(),
+        )
         session.add(user)
 
         # Create wallets for user
@@ -212,6 +225,30 @@ class UserService(object):
         else:
             raise ValueError("cannot register bitcoin wallet for user %s" % email)
 
+        session.commit()
+        return user
+
+    @staticmethod
+    def find_all():
+        query = session.query(User)
+        users = query.all()
+        return users
+
+    def find(self):
+        user = session.query(User).get(self.id)
+        return user
+
+    # def find_by_email(self, email):
+    #     pass
+
+    def delete(self):
+        user = session.query(User).get(self.id)
+        session.delete(user)
+        session.commit()
+
+    def update_password(self, password):
+        user = session.query(User).get(self.id)
+        user.password_hash = User.encode_password(password)
         session.commit()
         return user
 

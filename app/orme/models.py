@@ -1,10 +1,14 @@
 from __future__ import absolute_import, unicode_literals
-from orme.db import Base, Session, engine
+
+import base64
+import datetime
+
+from marshmallow_sqlalchemy import ModelSchema
+from marshmallow import Schema, fields, pprint
+from orme.db import Base
 from sqlalchemy import Column, Integer, String, Enum, DateTime
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
-import base64
-import datetime
 
 
 class User(Base):
@@ -62,6 +66,19 @@ class Address(Base):
 
 
 User.addresses = relationship("Address", order_by=Address.id, back_populates="user")
+
+
+class AddressSchema(ModelSchema):
+    class Meta:
+        model = Address
+
+
+class UserSchema(ModelSchema):
+    id = fields.Integer()
+    email = fields.Email()
+    created_at = fields.DateTime()
+    updated_at = fields.DateTime()
+    addresses = fields.Nested(AddressSchema, only=('address', 'balance', 'currency', 'password'), many=True)
 
 # Do not create all using metadata, since structure is created via Alembic migrations
 # Base.metadata.create_all(engine)
