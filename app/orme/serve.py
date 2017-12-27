@@ -147,25 +147,25 @@ def delete_user(id):
 
 
 # Sessions endpoint
-@app.route('/api/sessions', methods=['POST'])
-def create_session():
-    errors = []
-    content = request.get_json(silent=True)
-    if 'email' in content and 'password' in content:
-        logged_in = SessionsService.email_login(content['email'], content['password'])
-        if logged_in:
-            # TODO: JWT logic here
-            response = jsonify({})
-            response.status_code = 200
-            return response
-        else:
-            errors.append({'password': 'wrong password'})
-    else:
-        errors.append({'user': 'cannot log in without e-mail/password'})
-
-    response = jsonify(errors)
-    response.status_code = 422
-    return response
+# @app.route('/api/sessions', methods=['POST'])
+# def create_session():
+#     errors = []
+#     content = request.get_json(silent=True)
+#     if 'email' in content and 'password' in content:
+#         logged_in = SessionsService.email_login(content['email'], content['password'])
+#         if logged_in:
+#             # TODO: JWT logic here
+#             response = jsonify({})
+#             response.status_code = 200
+#             return response
+#         else:
+#             errors.append({'password': 'wrong password'})
+#     else:
+#         errors.append({'user': 'cannot log in without e-mail/password'})
+#
+#     response = jsonify(errors)
+#     response.status_code = 422
+#     return response
 
 
 # @app.route('/api/sessions', methods=['DELETE'])
