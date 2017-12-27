@@ -2,6 +2,7 @@ from __future__ import absolute_import, unicode_literals
 import os
 import sys
 from datetime import datetime, timedelta
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', )))
 
 from orme.eth_client import EthereumClient
@@ -35,8 +36,7 @@ app.config['JWT_AUTH_USERNAME_KEY'] = 'email'
 # Default prefix is JWT which is not standard for JWT
 app.config['JWT_AUTH_HEADER_PREFIX'] = 'Bearer'
 # Default time delta is just 5 minutes, setting it to 1 hour
-app.config['JWT_EXPIRATION_DELTA'] = timedelta(seconds=60*60)
-
+app.config['JWT_EXPIRATION_DELTA'] = timedelta(seconds=60 * 60)
 
 jwt = JWT(app, authenticate, identity)
 
@@ -106,13 +106,20 @@ def update_user(id):
     content = request.get_json(silent=True)
     if 'password' in content:
         srv = UserService(int(id))
-        user = srv.update_password(content['password'])
-        schema = UserSchema()
-        result = schema.dump(user)
+        user = srv.find()
+        if user.id == current_identity.id:
+            user = srv.update_password(content['password'])
+            schema = UserSchema()
+            result = schema.dump(user)
 
-        response = jsonify(result.data)
-        response.status_code = 200
-        return response
+            response = jsonify(result.data)
+            response.status_code = 200
+            return response
+        else:
+            errors = [{'authorization': 'only owner could update user'}]
+            response = jsonify(errors)
+            response.status_code = 401
+            return response
     else:
         errors = [{'user': 'password for user update not provided'}]
         response = jsonify(errors)
@@ -123,12 +130,19 @@ def update_user(id):
 @app.route('/api/users/<id>', methods=['DELETE'])
 @jwt_required()
 def delete_user(id):
-    srv = UserService(int(id))
-    result = srv.delete()
-
-    response = jsonify({})
-    response.status_code = 204
-    return response
+    user_id = int(id)
+    srv = UserService(user_id)
+    user = srv.find()
+    if user.id == current_identity.id:
+        result = srv.delete()
+        response = jsonify({})
+        response.status_code = 204
+        return response
+    else:
+        errors = [{'authorization': 'only owner could delete user'}]
+        response = jsonify(errors)
+        response.status_code = 401
+        return response
 
 
 # Sessions endpoint
