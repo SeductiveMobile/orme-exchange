@@ -3,6 +3,8 @@ import os
 import requests
 from bitcoinrpc.authproxy import AuthServiceProxy
 
+SATOSHI = 100000000
+
 
 class BitcoinClient(object):
     """Bitcoin client class"""
@@ -62,8 +64,15 @@ class BitcoinClient(object):
         return data_hash
 
     def balance(self):
-        """Overall balance of current wallet"""
-        return float(self.connection.getbalance())
+        """Overall balance of current wallet
+
+        Returns:
+            (int) balance in satoshis
+
+        """
+        balance = float(self.connection.getbalance())
+        # return balance
+        return int(balance * SATOSHI)
 
     def new_address(self):
         """Generate new address"""
@@ -195,6 +204,7 @@ class Address(object):
     # Solution is https://bitcoin.org/en/developer-reference#importaddress
     # But it requires running full node
     def _bitcoind_balance(self):
+        # Return result in satoshis
         raise ValueError('Not implemented yet')
 
     def _blockexplorer_balance(self):
@@ -208,7 +218,13 @@ class Address(object):
             raise RuntimeError(error_message)
 
         address_data = r.json()
-        return float(address_data['balance'])
+
+        # Balance in BTC, not used now
+        # balance = float(address_data['balance'])
+
+        # Return balance in satoshis, not BTC
+        balance = int(address_data['balanceSat'])
+        return balance
 
     def send(self, to_address, amount):
         """Send funds to specific address.

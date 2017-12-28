@@ -129,12 +129,12 @@ services:
       BITCOIN_HOST: "btcnode"
       BITCOIN_PORT: 18332
       BITCOIN_WALLET_PASSPHRASE: "nopassphrase"
-      # ETHEREUM_HOST: "ethnode"
       ETHEREUM_HOST: "bootstrap"
       ETHEREUM_PORT: 8545
       REDIS_HOST: 'redis'
       REDIS_PORT: 6379
       SECRET_KEY: '7814aa5476dccd9efa87eaded6968b72d125ae0214b98e2b415820800109b803302d1064a514da3f01ff24841023ca6b5d8c1c9c9d02b496588d07aec6a55c8a'
+      PRICING_STRATEGY_CONTRACT_ADDRESS: '0x0'
     volumes:
       - ${PWD-.}/app:/usr/src/app
     ports:
@@ -163,12 +163,12 @@ services:
       BITCOIN_HOST: "btcnode"
       BITCOIN_PORT: 18332
       BITCOIN_WALLET_PASSPHRASE: "nopassphrase"
-      # ETHEREUM_HOST: "ethnode"
       ETHEREUM_HOST: "bootstrap"
       ETHEREUM_PORT: 8545
       REDIS_HOST: 'redis'
       REDIS_PORT: 6379
       SECRET_KEY: '7814aa5476dccd9efa87eaded6968b72d125ae0214b98e2b415820800109b803302d1064a514da3f01ff24841023ca6b5d8c1c9c9d02b496588d07aec6a55c8a'
+      PRICING_STRATEGY_CONTRACT_ADDRESS: '0x0'
     volumes:
       - ${PWD-.}/app:/usr/src/app
     depends_on:
@@ -201,6 +201,7 @@ services:
       REDIS_HOST: 'redis'
       REDIS_PORT: 6379
       SECRET_KEY: '7814aa5476dccd9efa87eaded6968b72d125ae0214b98e2b415820800109b803302d1064a514da3f01ff24841023ca6b5d8c1c9c9d02b496588d07aec6a55c8a'
+      PRICING_STRATEGY_CONTRACT_ADDRESS: '0x0'
     volumes:
       - ${PWD-.}/app:/usr/src/app
     depends_on:
@@ -215,9 +216,7 @@ services:
     build: ./contracts
     volumes:
       - ${PWD-.}/contracts:/dapp
-#    entrypoint: /bin/sh truffle.sh
     environment:
-      # RPC_HOST: "ethnode"
       RPC_HOST: "bootstrap"
       RPC_PORT: 8545
       DEPLOYER_ADDRESS: "0x1ebd93ff2fc90b873a68e16b931a7c66e2237e31"

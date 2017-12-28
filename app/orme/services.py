@@ -10,6 +10,7 @@ import os
 from celery import Celery
 from orme.btc_client import Address as BTCAddress
 from orme.btc_client import BitcoinClient
+from orme.eth_client import EthereumClient, PricingStrategyContract
 from orme.db import session
 from orme.models import Address, User
 
@@ -56,9 +57,11 @@ def setup_periodic_tasks(sender, **kwargs):
     """ Periodic tasks via Celery Beat
     See examples at http://docs.celeryproject.org/en/latest/userguide/periodic-tasks.html
 
-    :param sender: internally used param
-    :param kwargs: not used
-    :return: None
+    Args:
+        sender: internally used param
+        kwargs: not used
+    Returns:
+        None
     """
     # Calls check_orv_wallets() every 600 seconds.
     sender.add_periodic_task(600.0, check_orv_wallets.s(), name='Check ORV wallets every 10 minutes')
@@ -89,15 +92,18 @@ class ORVService(object):
         """
         addr = session.query(Address).filter_by(address=self.address).first()
         if addr:
-            blockchain_address = BTCAddress(self.address)
+            bclient = BitcoinClient()
+            blockchain_address = BTCAddress(bclient, self.address)
             if not blockchain_address.is_valid():
                 raise ValueError("bitcoin address %s is not valid in the blockchain" % self.address)
 
-            balance = blockchain_address.balance()
-            # TODO: Prpperly compare blockchain and database balance
-            if balance != addr.balance:
-                # TODO: trigger appropriate smart contract via ETH client
-                pass
+            balance = int(blockchain_address.balance())
+            # TODO: Check that there are no issues since balance is "string" in database
+            if balance != int(addr.balance):
+                eclient = EthereumClient()
+                contract_address = os.environ['PRICING_STRATEGY_CONTRACT_ADDRESS']
+                contract = PricingStrategyContract(eclient, contract_address)
+                contract.set_available_satoshi(balance)
 
             addr.balance = balance
             session.commit()
@@ -166,11 +172,12 @@ def sync(self):
     """
     addr = session.query(Address).filter_by(address=self.address).first()
     if addr:
-        blockchain_address = BTCAddress(self.address)
+        bclient = BitcoinClient()
+        blockchain_address = BTCAddress(bclient, self.address)
         if not blockchain_address.is_valid():
             raise ValueError("bitcoin address %s is not valid in the blockchain" % self.address)
 
-        balance = blockchain_address.balance()
+        balance = int(blockchain_address.balance())
         if balance > 0:
             to_address = os.environ['ORV_WALLET_ADDRESS']
             # Send all money to ORV wallet

@@ -86,9 +86,12 @@ class EthereumClient(object):
 
         Args:
             address (str): address public key
+        Returns:
+            balance (int) in Wei
 
         """
-        return self.connection.eth.getBalance(address)
+        balance = self.connection.eth.getBalance(address)
+        return balance
 
     def get_block(self, block_number='latest'):
         """Get block data
@@ -204,3 +207,36 @@ class Contract(object):
 
     def _contract_handler(self):
         return self.client.fetch_contract(self.address)
+
+
+class PricingStrategyContract(Contract):
+    """Programmatic representation of pricing strategy contract"""
+
+    def __init__(self, client, address):
+        # super(PricingStrategyContract, self).__init__(client, address)
+        super().__init__(client, address)
+
+    def set_available_satoshi(self, amount):
+        """Pass ORME wallet balace (in satoshis)
+
+        Args:
+            amount (int) - balance in satoshis
+
+        Returns:
+            transaction ID or None
+        """
+        result = self._contract_handler.transact().setAvailableSatoshi(amount)
+        return result
+
+    def set_available_orme_in_gwel(self, amount):
+        """Set available ORME (in gwei)
+        This method is temporal and would be later removed in favor of launching directly from within smart contracts
+
+        Args:
+            amount (int) - amount (in GWei)
+
+        Returns:
+            transaction ID or None
+        """
+        result = self._contract_handler.transact().setAvailableORMEInGwei(amount)
+        return result
