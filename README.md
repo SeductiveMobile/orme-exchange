@@ -47,3 +47,9 @@ Mining takes lot of CPU resources, so once you have enough ethereum/gas you can 
 1. Get authentication token by POSTing into http://localhost:8000/auth a JSON with 'email' and 'password' fields.
 2. You should get a JSON with access_token variable.
 3. For each protected resource you shuld provide "Authorization" header of 'Bearer <access_token>' format.
+
+## To find contracts GAS value
+
+1. open truffle console: $ truffle console --network development
+2. run in console: web3.eth.getBlock("pending").gasLimit
+3. copy received gas value into truffle.js file in /contracts
