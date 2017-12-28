@@ -10,13 +10,9 @@ WORKDIR /dapp
 # Add current codebase to container
 COPY . .
 
-#RUN truffle init
-#RUN npm install zeppelin-solidity
 RUN apk update && apk upgrade \
     && apk add --no-cache g++ ca-certificates python3 python3-dev \
     && pip3 install web3
 
 EXPOSE 8080
-#ENTRYPOINT ["sh"]
-#ENTRYPOINT ["/bin/sh"]
 CMD /bin/sh truffle.sh
