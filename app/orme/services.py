@@ -97,9 +97,9 @@ class ORVService(object):
             if not blockchain_address.is_valid():
                 raise ValueError("bitcoin address %s is not valid in the blockchain" % self.address)
 
-            balance = int(blockchain_address.balance())
+            balance = blockchain_address.balance()
             # TODO: Check that there are no issues since balance is "string" in database
-            if balance != int(addr.balance):
+            if balance != addr.balance:
                 eclient = EthereumClient()
                 contract_address = os.environ['PRICING_STRATEGY_CONTRACT_ADDRESS']
                 contract = PricingStrategyContract(eclient, contract_address)
@@ -177,7 +177,7 @@ def sync(self):
         if not blockchain_address.is_valid():
             raise ValueError("bitcoin address %s is not valid in the blockchain" % self.address)
 
-        balance = int(blockchain_address.balance())
+        balance = blockchain_address.balance()
         if balance > 0:
             to_address = os.environ['ORV_WALLET_ADDRESS']
             # Send all money to ORV wallet

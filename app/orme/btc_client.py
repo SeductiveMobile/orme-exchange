@@ -190,8 +190,10 @@ class Address(object):
     def balance(self, method="blockexplorer"):
         """Check address balanace.
 
-        Keyword arguments:
-        method -- check method - internal "bitcoind" or "blockexplorer" for external blockexplorer API. Only blockexplorer is implemented for now.
+        Args:
+            method (string): check method - internal "bitcoind" or "blockexplorer" for external blockexplorer API. Only blockexplorer is implemented for now.
+        Returns:
+            (int) balance in satoshis
         """
 
         if method == "blockexplorer":
