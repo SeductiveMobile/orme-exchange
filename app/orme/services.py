@@ -5,13 +5,16 @@
 from __future__ import absolute_import, unicode_literals
 
 import os
+import random
+import string
 
 # from orme.celery import app
 from celery import Celery
 from orme.btc_client import Address as BTCAddress
 from orme.btc_client import BitcoinClient
-from orme.eth_client import EthereumClient, PricingStrategyContract
 from orme.db import session
+from orme.eth_client import Address as ETHAdress
+from orme.eth_client import EthereumClient, PricingStrategyContract
 from orme.models import Address, User
 
 # from celery import Celery
@@ -98,7 +101,6 @@ class ORVService(object):
                 raise ValueError("bitcoin address %s is not valid in the blockchain" % self.address)
 
             balance = blockchain_address.balance()
-            # TODO: Check that there are no issues since balance is "string" in database
             if balance != addr.balance:
                 eclient = EthereumClient()
                 contract_address = os.environ['PRICING_STRATEGY_CONTRACT_ADDRESS']
@@ -183,7 +185,17 @@ def sync(self):
             # Send all money to ORV wallet
             blockchain_address.send(to_address, balance)
 
-            # TODO: trigger appropriate smart contract via ETH client
+            # Step 1: get user of the address
+            # Step 2: get ethereum wallet of the user
+            # Step 3: Run contract transfer_to
+            user = addr.user
+            for user_address in user.addresses:
+                # Assuming user could have just one ethereum wallet
+                if user_address.currency == 'ethereum':
+                    eclient = EthereumClient()
+                    contract_address = os.environ['PRICING_STRATEGY_CONTRACT_ADDRESS']
+                    contract = PricingStrategyContract(eclient, contract_address)
+                    contract.transfer_to(user_address.address, balance)
 
             # Update wallet status
             addr.balance = 0
@@ -217,6 +229,8 @@ class UserService(object):
         session.add(user)
 
         # Create wallets for user
+
+        # Create bitcoin wallet
         btc_client = BitcoinClient()
         btc_addr = BTCAddress(btc_client)
         if btc_addr.register():
@@ -230,6 +244,23 @@ class UserService(object):
             session.add(address)
         else:
             raise ValueError("cannot register bitcoin wallet for user %s" % email)
+
+        # Create Ethereum Wallet
+        eclient = EthereumClient()
+        num_chars = 8
+        random_passphrase = ''.join(random.choices(string.ascii_uppercase + string.digits, k=num_chars))
+        eth_addr = ETHAdress(eclient, passphrase=random_passphrase)
+        if eth_addr.register():
+            address = Address(
+                address=eth_addr.address,
+                currency='ethereum',
+                wallet_type='user',
+                password=eth_addr.passphrase,
+                user=user
+            )
+            session.add(address)
+        else:
+            raise ValueError("cannot register ethereum wallet for user %s" % email)
 
         session.commit()
         return user

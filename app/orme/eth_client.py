@@ -228,6 +228,19 @@ class PricingStrategyContract(Contract):
         result = self._contract_handler.transact().setAvailableSatoshi(amount)
         return result
 
+    def transfer_to(self, address, amount):
+        """Transfer amount of ORME tokens to buyer
+
+        Args:
+            address (string) - buyer address
+            amount (int) - amount (in Satoshi)
+
+        Returns:
+            transaction ID or None
+        """
+        result = self._contract_handler.transact().transferTo(address, amount)
+        return result
+
     def set_available_orme_in_gwel(self, amount):
         """Set available ORME (in gwei)
         This method is temporal and would be later removed in favor of launching directly from within smart contracts
