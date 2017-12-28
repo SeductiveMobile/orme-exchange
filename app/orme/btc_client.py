@@ -194,6 +194,8 @@ class Address(object):
             method (string): check method - internal "bitcoind" or "blockexplorer" for external blockexplorer API. Only blockexplorer is implemented for now.
         Returns:
             (int) balance in satoshis
+        Raises:
+            RuntimeError if checked address does not exist
         """
 
         if method == "blockexplorer":

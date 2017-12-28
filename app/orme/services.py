@@ -36,14 +36,12 @@ def check_user_wallets():
 
 @app.task
 def sync_orv_wallet(address):
-    # print('sync_orv_wallet')
     service = ORVService(address)
     return service.sync()
 
 
 @app.task
 def sync_user_wallet(address):
-    # print('sync_user_wallet')
     service = UserWalletsService(address)
     return service.sync()
 
@@ -125,14 +123,14 @@ class ORVService(object):
         addresses = query.all()
         results = []
         for item in addresses:
-            result = app.sync_orv_wallet(item.address)
+            result = sync_orv_wallet.delay(item.address)
             results.append(result)
         return results
 
 
 class UserWalletsService(object):
 
-    def __ini__(self, address):
+    def __init__(self, address):
         """User Wallets Service constructor
 
         Args
@@ -158,50 +156,54 @@ class UserWalletsService(object):
         addresses = query.all()
         results = []
         for item in addresses:
-            result = app.sync_user_wallet(item.address)
+            result = sync_user_wallet.delay(item.address)
             results.append(result)
         return results
 
+    def sync(self):
+        """Synchronize user address(wallet) on bitcoin blockchain with local database.
+            Normally runs by scheduler.
+            Step 1: Step 1: get wallet by address from database
+            Step 2: Check wallet balance via bitcoin client
+            Step 3: if balance > 0 - transfer all funds to ORV wallet
+            Step 4: if balance > 0 - trigger appropriate smart contract via ETH client
 
-def sync(self):
-    """Synchronize user address(wallet) on bitcoin blockchain with local database.
-        Normally runs by scheduler.
-        Step 1: Step 1: get wallet by address from database
-        Step 2: Check wallet balance via bitcoin client
-        Step 3: if balance > 0 - transfer all funds to ORV wallet
-        Step 4: if balance > 0 - trigger appropriate smart contract via ETH client
+        """
+        addr = session.query(Address).filter_by(address=self.address).first()
+        if addr:
+            bclient = BitcoinClient()
+            blockchain_address = BTCAddress(bclient, self.address)
+            if not blockchain_address.is_valid():
+                raise ValueError("bitcoin address %s is not valid in the blockchain" % self.address)
 
-    """
-    addr = session.query(Address).filter_by(address=self.address).first()
-    if addr:
-        bclient = BitcoinClient()
-        blockchain_address = BTCAddress(bclient, self.address)
-        if not blockchain_address.is_valid():
-            raise ValueError("bitcoin address %s is not valid in the blockchain" % self.address)
+            try:
+                balance = blockchain_address.balance()
+                if balance > 0:
+                    to_address = os.environ['ORV_WALLET_ADDRESS']
+                    # Send all money to ORV wallet
+                    blockchain_address.send(to_address, balance)
 
-        balance = blockchain_address.balance()
-        if balance > 0:
-            to_address = os.environ['ORV_WALLET_ADDRESS']
-            # Send all money to ORV wallet
-            blockchain_address.send(to_address, balance)
+                    # Step 1: get user of the address
+                    # Step 2: get ethereum wallet of the user
+                    # Step 3: Run contract transfer_to
+                    user = addr.user
+                    for user_address in user.addresses:
+                        # Assuming user could have just one ethereum wallet
+                        if user_address.currency == 'ethereum':
+                            eclient = EthereumClient()
+                            contract_address = os.environ['PRICING_STRATEGY_CONTRACT_ADDRESS']
+                            contract = PricingStrategyContract(eclient, contract_address)
+                            contract.transfer_to(user_address.address, balance)
 
-            # Step 1: get user of the address
-            # Step 2: get ethereum wallet of the user
-            # Step 3: Run contract transfer_to
-            user = addr.user
-            for user_address in user.addresses:
-                # Assuming user could have just one ethereum wallet
-                if user_address.currency == 'ethereum':
-                    eclient = EthereumClient()
-                    contract_address = os.environ['PRICING_STRATEGY_CONTRACT_ADDRESS']
-                    contract = PricingStrategyContract(eclient, contract_address)
-                    contract.transfer_to(user_address.address, balance)
-
-            # Update wallet status
-            addr.balance = 0
-            session.commit()
-    else:
-        raise ValueError("bitcoin address %s not found in the database" % self.address)
+                    # Update wallet status
+                    addr.balance = 0
+                    session.commit()
+            except RuntimeError:
+                # This issue should not happen in production,
+                # just in dev/test where we create local accounts, but verify them on mainnet using blockexporer
+                print("bitcoin address %s does not exist, doing nothing" % blockchain_address.public_key)
+        else:
+            raise ValueError("bitcoin address %s not found in the database" % self.address)
 
 
 class UserService(object):
