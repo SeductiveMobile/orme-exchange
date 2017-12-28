@@ -86,7 +86,8 @@ def show_user(id):
 @app.route('/api/users', methods=['POST'])
 def create_user():
     content = request.get_json(silent=True)
-    if 'email' in content and 'password' in content:
+    # content = request.get_json()
+    if content is not None and 'email' in content and 'password' in content:
         user = UserService.create(content['email'], content['password'])
         schema = UserSchema()
         result = schema.dump(user)
@@ -95,7 +96,7 @@ def create_user():
         response.status_code = 200
         return response
     else:
-        errors = [{'user': 'cannot create user for unknown reason'}]
+        errors = [{'user': 'cannot create user, probably email or password is missing'}]
         response = jsonify(errors)
         response.status_code = 422
         return response
