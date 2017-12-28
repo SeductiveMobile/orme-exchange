@@ -241,7 +241,7 @@ class Address(object):
             RuntimeError: if to_address is invalid
         """
         if self.client.validate_address(to_address):
-            amount_satoshi = float(amount/SATOSHI)
+            amount_satoshi = float(amount / SATOSHI)
             # TODO: Uncomment balance verification once in production
             # if self.balance() <= amount_satoshi:
             #     raise ValueError("cannot transfer funds: address %s does not have enough money" % self.public_key)
