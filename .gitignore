@@ -3,7 +3,6 @@ venv/*
 .idea
 contracts/installed_contracts
 data/
-.gitignore
 node_modules
 npm-debug.log
 log/*
