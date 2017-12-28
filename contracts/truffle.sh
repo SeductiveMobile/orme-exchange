@@ -10,7 +10,7 @@ echo "Installing dependencies..."
 truffle install zeppelin
 
 echo "Unlocking account"
-python unlock.py
+python3 unlock.py
 
 # Test on private net
 echo "Testing on network: development"
@@ -18,7 +18,7 @@ truffle test --network development
 
 # Deploy to private net
 echo "Unlocking account"
-python unlock.py
+python3 unlock.py
 echo "Deployment on network: development"
 truffle migrate --network development
 
