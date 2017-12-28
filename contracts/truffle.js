@@ -11,7 +11,7 @@ module.exports = {
         host: process.env.RPC_HOST || "localhost",
         port: process.env.RPC_PORT || 8545,
         network_id: "*",
-        gas: 4712388,
+        gas: 4029024,
         from: process.env.DEPLOYER_ADDRESS,
       }
     },
@@ -20,5 +20,9 @@ module.exports = {
             enabled: true,
             runs: 200
         }
+    },
+    rpc: {
+      host: "localhost",
+      port: 8545
     }
 };
