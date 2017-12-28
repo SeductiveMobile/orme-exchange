@@ -1,1 +1,0 @@
-# TODO: structure the app according to http://flask.pocoo.org/docs/0.12/patterns/packages/

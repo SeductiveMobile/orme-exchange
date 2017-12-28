@@ -216,40 +216,53 @@ class PricingStrategyContract(Contract):
         # super(PricingStrategyContract, self).__init__(client, address)
         super().__init__(client, address)
 
-    def set_available_satoshi(self, amount):
+    def set_available_satoshi(self, amount, from_address=None):
         """Pass ORME wallet balace (in satoshis)
 
         Args:
-            amount (int) - balance in satoshis
+            amount (int): balance in satoshis
+            from_address (string): address of contract executor, web3.eth.defaultAccount would be used if not set
 
         Returns:
             transaction ID or None
         """
-        result = self._contract_handler.transact().setAvailableSatoshi(amount)
+        if not from_address:
+            result = self._contract_handler.transact().setAvailableSatoshi(amount)
+        else:
+            result = self._contract_handler.transact({'from': from_address}).setAvailableSatoshi(amount)
         return result
 
-    def transfer_to(self, address, amount):
+    def transfer_to(self, address, amount, from_address=None):
         """Transfer amount of ORME tokens to buyer
 
         Args:
             address (string) - buyer address
             amount (int) - amount (in Satoshi)
+            from_address (string): address of contract executor, web3.eth.defaultAccount would be used if not set
 
         Returns:
             transaction ID or None
         """
-        result = self._contract_handler.transact().transferTo(address, amount)
+        if not from_address:
+            result = self._contract_handler.transact().transferTo(address, amount)
+        else:
+            result = self._contract_handler.transact({'from': from_address}).transferTo(address, amount)
         return result
 
-    def set_available_orme_in_gwel(self, amount):
+    def set_available_orme_in_gwei(self, amount, from_address=None):
         """Set available ORME (in gwei)
         This method is temporal and would be later removed in favor of launching directly from within smart contracts
 
         Args:
             amount (int) - amount (in GWei)
+            from_address (string): address of contract executor, web3.eth.defaultAccount would be used if not set
 
         Returns:
             transaction ID or None
         """
-        result = self._contract_handler.transact().setAvailableORMEInGwei(amount)
+        if not from_address:
+            result = self._contract_handler.transact().setAvailableORMEInGwei(amount)
+        else:
+            result = self._contract_handler.transact({'from': from_address}).setAvailableORMEInGwei(amount)
+
         return result

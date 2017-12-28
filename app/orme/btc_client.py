@@ -233,17 +233,21 @@ class Address(object):
     def send(self, to_address, amount):
         """Send funds to specific address.
 
-        Keyword arguments:
-        to_addr -- address (public key) we're sending funds to
-        amount -- (float) amount of bitcoins to send
+        Args:
+            to_address (string) address (public key) we're sending funds to
+            amount (integer) amount of satoshi to send
+        Raises:
+            ValueError: if current address does not have enough money to send
+            RuntimeError: if to_address is invalid
         """
         if self.client.validate_address(to_address):
-            pass
-        else:
-            raise ValueError("cannot transfer funds: address %s is invalid" % to_address)
-        # TODO: Check if there are enough funds in current address
-        self.client.unlock_wallet()
-        self.client.send(self.public_key, to_address, amount)
-        self.client.lock_wallet()
+            amount_satoshi = float(amount/SATOSHI)
+            # TODO: Uncomment balance verification once in production
+            # if self.balance() <= amount_satoshi:
+            #     raise ValueError("cannot transfer funds: address %s does not have enough money" % self.public_key)
 
-        raise ValueError('not implemented yet')
+            self.client.unlock_wallet()
+            self.client.send(self.public_key, to_address, amount_satoshi)
+            self.client.lock_wallet()
+        else:
+            raise RuntimeError("cannot transfer funds: address %s is invalid" % to_address)

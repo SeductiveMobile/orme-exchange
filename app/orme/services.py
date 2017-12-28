@@ -102,7 +102,8 @@ class ORVService(object):
             if balance != addr.balance:
                 eclient = EthereumClient()
                 contract_address = os.environ['PRICING_STRATEGY_CONTRACT_ADDRESS']
-                contract = PricingStrategyContract(eclient, contract_address)
+                executor_address = os.environ['CONTRACT_EXECUTOR_ADDRESS']
+                contract = PricingStrategyContract(eclient, contract_address, executor_address)
                 contract.set_available_satoshi(balance)
 
             addr.balance = balance
@@ -193,7 +194,8 @@ class UserWalletsService(object):
                             eclient = EthereumClient()
                             contract_address = os.environ['PRICING_STRATEGY_CONTRACT_ADDRESS']
                             contract = PricingStrategyContract(eclient, contract_address)
-                            contract.transfer_to(user_address.address, balance)
+                            executor_address = os.environ['CONTRACT_EXECUTOR_ADDRESS']
+                            contract.transfer_to(user_address.address, balance, executor_address)
 
                     # Update wallet status
                     addr.balance = 0
