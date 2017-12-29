@@ -106,28 +106,22 @@ class ORVService(object):
             else:
                 balance = blockchain_address.balance()
 
+            transaction = None
             if balance != addr.balance:
+                persisted_contract = ContractService.find('PricingStrategy')
+                if persisted_contract is None:
+                    raise RuntimeError('PricingStrategy contract is not available in the database')
+
+                contract_address = persisted_contract.address
+                contract_abi = json.loads(persisted_contract.abi)
+
                 # TODO: Remove this hack once we get rid of testrpc
                 if int(os.environ['ETHEREUM_TESTRPC_ENABLED']) == 1:
-                    eclient = EthereumClient('testrpc')
-                    # contract_address = os.environ['ETHEREUM_PRICING_STRATEGY_CONTRACT']
                     executor_address = os.environ['ETHEREUM_TESTRPC_MASTER_ADDRESS']
-
-                    # We're taking contract address from a file
-                    json_path = os.path.abspath('PricingStrategy.json')
-                    fp = open(json_path, 'r')
-                    abi_string = fp.read().strip()
-                    fp.close()
-                    json_data = json.loads(abi_string)
-                    contract_abi = json_data['abi']
-                    networks = list(json_data['networks'].values())
-                    contract_address = networks[-1]['address']
-
+                    eclient = EthereumClient('testrpc')
                 else:
-                    eclient = EthereumClient()
-                    contract_address = os.environ['ETHEREUM_PRICING_STRATEGY_CONTRACT']
                     executor_address = os.environ['ETHEREUM_CONTRACT_EXECUTOR']
-                    contract_abi = ''
+                    eclient = EthereumClient()
 
                 contract = PricingStrategyContract(eclient, contract_abi, contract_address)
                 transaction = contract.set_available_satoshi(balance, executor_address)
@@ -218,24 +212,29 @@ class UserWalletsService(object):
                     for user_address in user.addresses:
                         # Assuming user could have just one ethereum wallet
                         if user_address.currency == 'ethereum':
+                            persisted_contract = ContractService.find('PricingStrategy')
+                            if persisted_contract is None:
+                                raise RuntimeError('PricingStrategy contract is not available in the database')
+
+                            contract_address = persisted_contract.address
+                            contract_abi = json.loads(persisted_contract.abi)
+
                             # TODO: Remove this hack once we get rid of testrpc
                             if int(os.environ['ETHEREUM_TESTRPC_ENABLED']) == 1:
-                                eclient = EthereumClient('testrpc')
-                                contract_address = os.environ['ETHEREUM_PRICING_STRATEGY_CONTRACT']
                                 executor_address = os.environ['ETHEREUM_TESTRPC_MASTER_ADDRESS']
-                                user_address = os.environ['ETHEREUM_TESTRPC_SLAVE_ADDRESS']
+                                eclient = EthereumClient('testrpc')
                             else:
-                                eclient = EthereumClient()
-                                contract_address = os.environ['ETHEREUM_PRICING_STRATEGY_CONTRACT']
                                 executor_address = os.environ['ETHEREUM_CONTRACT_EXECUTOR']
-                                user_address = user_address.address
+                                eclient = EthereumClient()
 
-                            contract = PricingStrategyContract(eclient, contract_address)
-                            contract.transfer_to(user_address, balance, executor_address)
+                            contract = PricingStrategyContract(eclient, contract_abi, contract_address)
+                            user_address = user_address.address
+                            transaction = contract.transfer_to(user_address, balance, executor_address)
 
                     # Update wallet status
                     addr.balance = 0
                     session.commit()
+                    return transaction
             except RuntimeError:
                 # This issue should not happen in production,
                 # just in dev/test where we create local accounts, but verify them on mainnet using blockexporer
