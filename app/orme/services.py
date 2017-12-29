@@ -101,8 +101,8 @@ class ORVService(object):
             #     raise ValueError("bitcoin address %s is not valid in the blockchain" % self.address)
 
             if int(os.environ['ETHEREUM_TESTRPC_ENABLED']) == 1:
-                # balance = blockchain_address.balance('test')
-                balance = blockchain_address.balance()
+                balance = blockchain_address.balance('test')
+                # balance = blockchain_address.balance()
             else:
                 balance = blockchain_address.balance()
 
@@ -113,17 +113,16 @@ class ORVService(object):
                     # contract_address = os.environ['ETHEREUM_PRICING_STRATEGY_CONTRACT']
                     executor_address = os.environ['ETHEREUM_TESTRPC_MASTER_ADDRESS']
 
-                    # We're taking contract address from contract.txt instead of environment
-                    fp = open('contract.txt', 'r')
-                    contract_address = fp.read().strip()
-                    fp.close()
-
-                    # Reading ABI from disk
-                    fp = open('PricingStrategy.json', 'r')
+                    # We're taking contract address from a file
+                    json_path = os.path.abspath('PricingStrategy.json')
+                    fp = open(json_path, 'r')
                     abi_string = fp.read().strip()
                     fp.close()
+                    json_data = json.loads(abi_string)
+                    contract_abi = json_data['abi']
+                    networks = list(json_data['networks'].values())
+                    contract_address = networks[-1]['address']
 
-                    contract_abi = json.loads(abi_string)
                 else:
                     eclient = EthereumClient()
                     contract_address = os.environ['ETHEREUM_PRICING_STRATEGY_CONTRACT']
@@ -135,6 +134,7 @@ class ORVService(object):
 
             addr.balance = balance
             session.commit()
+            return transaction
         else:
             raise ValueError("bitcoin address %s not found in the database" % self.address)
 

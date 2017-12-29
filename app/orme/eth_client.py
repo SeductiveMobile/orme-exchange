@@ -255,11 +255,6 @@ class PricingStrategyContract(Contract):
         Returns:
             transaction ID or None
         """
-
-        # TODO: Remove this hack once we get rid of testrpc
-        # if self.client.network == 'testrpc':
-        #     address = os.environ['ETHEREUM_TESTRPC_SLAVE_ADDRESS']
-
         if not from_address:
             result = self.handler.transact().transferTo(address, amount)
         else:

@@ -36,3 +36,4 @@ services:
 
     volumes:
       - ${PWD-.}/app:/usr/src/app
+      - ${PWD-.}/contracts/build/contracts/PricingStrategy.json:/usr/src/app/PricingStrategy.json:ro
