@@ -111,8 +111,8 @@ class ORVService(object):
                     contract_address = os.environ['ETHEREUM_PRICING_STRATEGY_CONTRACT']
                     executor_address = os.environ['ETHEREUM_CONTRACT_EXECUTOR']
 
-                contract = PricingStrategyContract(eclient, contract_address, executor_address)
-                contract.set_available_satoshi(balance)
+                contract = PricingStrategyContract(eclient, contract_address)
+                contract.set_available_satoshi(balance, executor_address)
 
             addr.balance = balance
             session.commit()
