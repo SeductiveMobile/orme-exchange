@@ -191,7 +191,7 @@ class Address(object):
         """Check address balanace.
 
         Args:
-            method (string): check method - internal "bitcoind" or "blockexplorer" for external blockexplorer API. Only blockexplorer is implemented for now.
+            method (string): check method - internal "bitcoind", "test" or "blockexplorer" for external blockexplorer API. Only blockexplorer is implemented for now.
         Returns:
             (int) balance in satoshis
         Raises:
@@ -202,6 +202,8 @@ class Address(object):
             return self._blockexplorer_balance()
         if method == "bitcoind":
             return self._blockexplorer_balance()
+        if method == "test":
+            return self._test_balance()
         raise RuntimeError('Wrong balance check method')
 
     # TODO: Implement
@@ -210,6 +212,10 @@ class Address(object):
     def _bitcoind_balance(self):
         # Return result in satoshis
         raise ValueError('Not implemented yet')
+
+    def _test_balance(self):
+        # Note: this method used only for testing purposes
+        return 250000000000
 
     def _blockexplorer_balance(self):
         """Check address balance via https://blockexplorer.com"""

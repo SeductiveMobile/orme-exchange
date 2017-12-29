@@ -22,7 +22,7 @@ def upgrade():
         'addresses',
         sa.Column('id', sa.Integer, primary_key=True),
         sa.Column('address', sa.String(255), nullable=False, unique=True),
-        sa.Column('balance', sa.Integer, default=0),
+        sa.Column('balance', sa.BigInteger, default=0),
         sa.Column('currency', sa.Enum('bitcoin', 'ethereum', name='currency_types')),
         sa.Column('wallet_type', sa.Enum('orv', 'user', name='wallet_types')),
         sa.Column('created_at', sa.DateTime, default=datetime.datetime.utcnow()),

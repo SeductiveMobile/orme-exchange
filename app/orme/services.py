@@ -7,6 +7,7 @@ from __future__ import absolute_import, unicode_literals
 import os
 import random
 import string
+import json
 
 # from orme.celery import app
 from celery import Celery
@@ -99,20 +100,38 @@ class ORVService(object):
             # if not blockchain_address.is_valid():
             #     raise ValueError("bitcoin address %s is not valid in the blockchain" % self.address)
 
-            balance = blockchain_address.balance()
+            if int(os.environ['ETHEREUM_TESTRPC_ENABLED']) == 1:
+                # balance = blockchain_address.balance('test')
+                balance = blockchain_address.balance()
+            else:
+                balance = blockchain_address.balance()
+
             if balance != addr.balance:
                 # TODO: Remove this hack once we get rid of testrpc
                 if int(os.environ['ETHEREUM_TESTRPC_ENABLED']) == 1:
                     eclient = EthereumClient('testrpc')
-                    contract_address = os.environ['ETHEREUM_PRICING_STRATEGY_CONTRACT']
+                    # contract_address = os.environ['ETHEREUM_PRICING_STRATEGY_CONTRACT']
                     executor_address = os.environ['ETHEREUM_TESTRPC_MASTER_ADDRESS']
+
+                    # We're taking contract address from contract.txt instead of environment
+                    fp = open('contract.txt', 'r')
+                    contract_address = fp.read().strip()
+                    fp.close()
+
+                    # Reading ABI from disk
+                    fp = open('PricingStrategy.json', 'r')
+                    abi_string = fp.read().strip()
+                    fp.close()
+
+                    contract_abi = json.loads(abi_string)
                 else:
                     eclient = EthereumClient()
                     contract_address = os.environ['ETHEREUM_PRICING_STRATEGY_CONTRACT']
                     executor_address = os.environ['ETHEREUM_CONTRACT_EXECUTOR']
+                    contract_abi = ''
 
-                contract = PricingStrategyContract(eclient, contract_address)
-                contract.set_available_satoshi(balance, executor_address)
+                contract = PricingStrategyContract(eclient, contract_abi, contract_address)
+                transaction = contract.set_available_satoshi(balance, executor_address)
 
             addr.balance = balance
             session.commit()

@@ -13,7 +13,7 @@ class EthereumClient(object):
 
     def __init__(self, network='geth'):
         self.network = network
-        if network =='geth':
+        if network == 'geth':
             self.host = os.environ["ETHEREUM_HOST"]
             self.port = int(os.environ["ETHEREUM_PORT"])
         if network == 'testrpc':
@@ -87,8 +87,8 @@ class EthereumClient(object):
 
         return self.connection.personal.unlockAccount(address, passphrase, duration)
 
-    def fetch_contract(self, address):
-        return self.connection.eth.contract(address=address)
+    def fetch_contract(self, abi, address):
+        return self.connection.eth.contract(abi=abi, address=address)
 
     def address_balance(self, address):
         """Check balance fore specific address
@@ -202,28 +202,29 @@ class Contract(object):
     # See http://web3py.readthedocs.io/en/stable/contracts.html for handler methods
     handler = None
 
-    def __init__(self, client, address):
+    def __init__(self, client, abi, address):
         """Contract class constructor.
 
         Args:
             client (EthereumClient): ethereum client handler
+            abi (str): serialized json code of the contract
             address (str): contract actual address we're working on
 
         """
+        self.abi = abi
         self.address = address
         self.client = client
         self.handler = self._contract_handler()
 
     def _contract_handler(self):
-        return self.client.fetch_contract(self.address)
+        return self.client.fetch_contract(self.abi, self.address)
 
 
 class PricingStrategyContract(Contract):
     """Programmatic representation of pricing strategy contract"""
 
-    def __init__(self, client, address):
-        # super(PricingStrategyContract, self).__init__(client, address)
-        super().__init__(client, address)
+    def __init__(self, client, abi, address):
+        super().__init__(client, abi, address)
 
     def set_available_satoshi(self, amount, from_address=None):
         """Pass ORME wallet balace (in satoshis)
@@ -235,10 +236,12 @@ class PricingStrategyContract(Contract):
         Returns:
             transaction ID or None
         """
+
         if not from_address:
-            result = self._contract_handler.transact().setAvailableSatoshi(amount)
+            result = self.handler.transact().setAvailableSatoshi(amount)
         else:
-            result = self._contract_handler.transact({'from': from_address}).setAvailableSatoshi(amount)
+            result = self.handler.transact({'from': from_address}).setAvailableSatoshi(amount)
+
         return result
 
     def transfer_to(self, address, amount, from_address=None):
@@ -258,9 +261,9 @@ class PricingStrategyContract(Contract):
         #     address = os.environ['ETHEREUM_TESTRPC_SLAVE_ADDRESS']
 
         if not from_address:
-            result = self._contract_handler.transact().transferTo(address, amount)
+            result = self.handler.transact().transferTo(address, amount)
         else:
-            result = self._contract_handler.transact({'from': from_address}).transferTo(address, amount)
+            result = self.handler.transact({'from': from_address}).transferTo(address, amount)
         return result
 
     def set_available_orme_in_gwei(self, amount, from_address=None):
@@ -275,8 +278,8 @@ class PricingStrategyContract(Contract):
             transaction ID or None
         """
         if not from_address:
-            result = self._contract_handler.transact().setAvailableORMEInGwei(amount)
+            result = self.handler.transact().setAvailableORMEInGwei(amount)
         else:
-            result = self._contract_handler.transact({'from': from_address}).setAvailableORMEInGwei(amount)
+            result = self.handler.transact({'from': from_address}).setAvailableORMEInGwei(amount)
 
         return result
