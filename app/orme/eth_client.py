@@ -11,9 +11,14 @@ class EthereumClient(object):
 
     info = None
 
-    def __init__(self):
-        self.host = os.environ["ETHEREUM_HOST"]
-        self.port = int(os.environ["ETHEREUM_PORT"])
+    def __init__(self, network='geth'):
+        self.network = network
+        if network =='geth':
+            self.host = os.environ["ETHEREUM_HOST"]
+            self.port = int(os.environ["ETHEREUM_PORT"])
+        if network == 'testrpc':
+            self.host = os.environ["ETHEREUM_TESTRPC_HOST"]
+            self.port = int(os.environ["ETHEREUM_TESTRPC_PORT"])
 
         self.connection = Web3(HTTPProvider("http://%s:%i" % (self.host, self.port)))
 
@@ -76,6 +81,10 @@ class EthereumClient(object):
             duration (Optional[int]) unlock duration in seconds, default is 60
 
         """
+        # TODO: remove this hack when we'll stop using testrpc
+        if self.network == 'testrpc':
+            return True
+
         return self.connection.personal.unlockAccount(address, passphrase, duration)
 
     def fetch_contract(self, address):
@@ -243,6 +252,11 @@ class PricingStrategyContract(Contract):
         Returns:
             transaction ID or None
         """
+
+        # TODO: Remove this hack once we get rid of testrpc
+        # if self.client.network == 'testrpc':
+        #     address = os.environ['ETHEREUM_TESTRPC_SLAVE_ADDRESS']
+
         if not from_address:
             result = self._contract_handler.transact().transferTo(address, amount)
         else:

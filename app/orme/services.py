@@ -65,10 +65,10 @@ def setup_periodic_tasks(sender, **kwargs):
         None
     """
     # Calls check_orv_wallets() every 600 seconds.
-    sender.add_periodic_task(600.0, check_orv_wallets.s(), name='Check ORV wallets every 10 minutes')
+    sender.add_periodic_task(60.0, check_orv_wallets.s(), name='Check ORV wallets every 10 minutes')
 
     # Calls check_user_wallets() every 600 seconds.
-    sender.add_periodic_task(599.0, check_user_wallets.s(), name='Check User wallets every 10 minutes')
+    sender.add_periodic_task(59.0, check_user_wallets.s(), name='Check User wallets every 10 minutes')
 
 
 class ORVService(object):
@@ -95,14 +95,22 @@ class ORVService(object):
         if addr:
             bclient = BitcoinClient()
             blockchain_address = BTCAddress(bclient, self.address)
-            if not blockchain_address.is_valid():
-                raise ValueError("bitcoin address %s is not valid in the blockchain" % self.address)
+            # TODO: Uncomment once on mainnet, checking mainnet address on dev-btc-node fails
+            # if not blockchain_address.is_valid():
+            #     raise ValueError("bitcoin address %s is not valid in the blockchain" % self.address)
 
             balance = blockchain_address.balance()
             if balance != addr.balance:
-                eclient = EthereumClient()
-                contract_address = os.environ['PRICING_STRATEGY_CONTRACT_ADDRESS']
-                executor_address = os.environ['CONTRACT_EXECUTOR_ADDRESS']
+                # TODO: Remove this hack once we get rid of testrpc
+                if int(os.environ['ETHEREUM_TESTRPC_ENABLED']) == 1:
+                    eclient = EthereumClient('testrpc')
+                    contract_address = os.environ['ETHEREUM_PRICING_STRATEGY_CONTRACT']
+                    executor_address = os.environ['ETHEREUM_TESTRPC_MASTER_ADDRESS']
+                else:
+                    eclient = EthereumClient()
+                    contract_address = os.environ['ETHEREUM_PRICING_STRATEGY_CONTRACT']
+                    executor_address = os.environ['ETHEREUM_CONTRACT_EXECUTOR']
+
                 contract = PricingStrategyContract(eclient, contract_address, executor_address)
                 contract.set_available_satoshi(balance)
 
@@ -180,7 +188,7 @@ class UserWalletsService(object):
             try:
                 balance = blockchain_address.balance()
                 if balance > 0:
-                    to_address = os.environ['ORV_WALLET_ADDRESS']
+                    to_address = os.environ['BITCOIN_ORV_WALLET']
                     # Send all money to ORV wallet
                     blockchain_address.send(to_address, balance)
 
@@ -191,11 +199,20 @@ class UserWalletsService(object):
                     for user_address in user.addresses:
                         # Assuming user could have just one ethereum wallet
                         if user_address.currency == 'ethereum':
-                            eclient = EthereumClient()
-                            contract_address = os.environ['PRICING_STRATEGY_CONTRACT_ADDRESS']
+                            # TODO: Remove this hack once we get rid of testrpc
+                            if int(os.environ['ETHEREUM_TESTRPC_ENABLED']) == 1:
+                                eclient = EthereumClient('testrpc')
+                                contract_address = os.environ['ETHEREUM_PRICING_STRATEGY_CONTRACT']
+                                executor_address = os.environ['ETHEREUM_TESTRPC_MASTER_ADDRESS']
+                                user_address = os.environ['ETHEREUM_TESTRPC_SLAVE_ADDRESS']
+                            else:
+                                eclient = EthereumClient()
+                                contract_address = os.environ['ETHEREUM_PRICING_STRATEGY_CONTRACT']
+                                executor_address = os.environ['ETHEREUM_CONTRACT_EXECUTOR']
+                                user_address = user_address.address
+
                             contract = PricingStrategyContract(eclient, contract_address)
-                            executor_address = os.environ['CONTRACT_EXECUTOR_ADDRESS']
-                            contract.transfer_to(user_address.address, balance, executor_address)
+                            contract.transfer_to(user_address, balance, executor_address)
 
                     # Update wallet status
                     addr.balance = 0

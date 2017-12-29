@@ -165,14 +165,14 @@ services:
     volumes:
       - ${PWD-.}/contracts:/dapp
     environment:
-#      ETHEREUM_NETWORK: 'development'
+      # ETHEREUM_NETWORK: 'development'
       ETHEREUM_NETWORK: 'testrpc'
+      # ETHEREUM_RPC_HOST: "bootstrap"
       ETHEREUM_RPC_HOST: "testrpc"
-#      ETHEREUM_RPC_HOST: "bootstrap"
       ETHEREUM_RPC_PORT: 8545
-#      ETHEREUM_DEPLOYER_ADDRESS: "0x1ebd93ff2fc90b873a68e16b931a7c66e2237e31"
+      # ETHEREUM_DEPLOYER_ADDRESS: "0x1ebd93ff2fc90b873a68e16b931a7c66e2237e31"
       ETHEREUM_DEPLOYER_ADDRESS: "0x22ddfe3c6439839edf8e2e56126c65c5fc5a2f40"
-#      ETHEREUM_DEPLOYER_PASSPHRASE: "nopassphrase"
+      # ETHEREUM_DEPLOYER_PASSPHRASE: "nopassphrase"
       ETHEREUM_DEPLOYER_PASSPHRASE: "17Fusion"
       ETHEREUM_UNLOCK_DURATION: 1800
     ports:
