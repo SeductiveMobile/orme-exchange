@@ -1,12 +1,12 @@
 import os
 from web3 import Web3, HTTPProvider, IPCProvider
 
-host = os.environ["RPC_HOST"]
-port = int(os.environ["RPC_PORT"])
-address = os.environ["DEPLOYER_ADDRESS"]
-passphrase = os.environ["DEPLOYER_PASSPHRASE"]
-duration = int(os.environ["UNLOCK_DURATION"])
-network_name = os.environ["NETWORK_NAME"]
+host = os.environ["ETHEREUM_RPC_HOST"]
+port = int(os.environ["ETHEREUM_RPC_PORT"])
+address = os.environ["ETHEREUM_DEPLOYER_ADDRESS"]
+passphrase = os.environ["ETHEREUM_DEPLOYER_PASSPHRASE"]
+duration = int(os.environ["ETHEREUM_UNLOCK_DURATION"])
+network_name = os.environ["ETHEREUM_NETWORK"]
 
 # We do not need unlocks on TESTRPC
 if network_name != "testrpc":

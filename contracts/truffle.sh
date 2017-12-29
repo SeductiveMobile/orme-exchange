@@ -1,6 +1,6 @@
 #!/bin/sh
 echo "Waiting Ethereum to start..."
-while ! nc -z $RPC_HOST $RPC_PORT; do
+while ! nc -z $ETHEREUM_RPC_HOST $ETHEREUM_RPC_PORT; do
   sleep 0.1
 done
 
@@ -14,13 +14,13 @@ echo "Unlocking account for tests"
 
 # Test on private net
 echo "Testing on network: development"
-truffle test --network $NETWORK_NAME
+truffle test --network $ETHEREUM_NETWORK
 
 # Deploy to private net
 echo "Unlocking account for migrations"
 /usr/bin/python3 unlock.py
 echo "Deployment on network: development"
-truffle migrate --network $NETWORK_NAME
+truffle migrate --network $ETHEREUM_NETWORK
 
 # Truffle console on private net for tests
 #truffle console --network development
