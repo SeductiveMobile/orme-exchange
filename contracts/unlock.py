@@ -6,6 +6,9 @@ port = int(os.environ["RPC_PORT"])
 address = os.environ["DEPLOYER_ADDRESS"]
 passphrase = os.environ["DEPLOYER_PASSPHRASE"]
 duration = int(os.environ["UNLOCK_DURATION"])
+network_name = os.environ["NETWORK_NAME"]
 
-connection = Web3(HTTPProvider("http://%s:%i" % (host, port)))
-unlock = connection.personal.unlockAccount(address, passphrase, duration)
+# We do not need unlocks on TESTRPC
+if network_name != "testrpc":
+    connection = Web3(HTTPProvider("http://%s:%i" % (host, port)))
+    unlock = connection.personal.unlockAccount(address, passphrase, duration)

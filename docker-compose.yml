@@ -215,15 +215,28 @@ services:
       - bootstrap
       - app_setup
 
+
+  testrpc: # A very simple/light geth, only for testing purpose
+    container_name: testrpc
+    image: desmart/testrpc:latest
+    ports:
+      - "8546:8545"
+    command: '--debug --account="0xaa73b5c98e60d589e71ce7cff59c02f82e12c7ce676ee356da8e058a285ccd61,12345678901234567891234567890123456789123" --account="0x52f3a1fa15405e1d5a68d7774ca45c7a3c7373a66c3c44db94a7f99a22c14d28,12345678901234567891234567890123456789123"'
+
   contracts:
     build: ./contracts
     volumes:
       - ${PWD-.}/contracts:/dapp
     environment:
-      RPC_HOST: "bootstrap"
+#      NETWORK_NAME: 'development'
+      NETWORK_NAME: 'testrpc'
+      RPC_HOST: "testrpc"
+#      RPC_HOST: "bootstrap"
       RPC_PORT: 8545
-      DEPLOYER_ADDRESS: "0x1ebd93ff2fc90b873a68e16b931a7c66e2237e31"
-      DEPLOYER_PASSPHRASE: "nopassphrase"
+#      DEPLOYER_ADDRESS: "0x1ebd93ff2fc90b873a68e16b931a7c66e2237e31"
+      DEPLOYER_ADDRESS: "0x22ddfe3c6439839edf8e2e56126c65c5fc5a2f40"
+#      DEPLOYER_PASSPHRASE: "nopassphrase"
+      DEPLOYER_PASSPHRASE: "17Fusion"
       UNLOCK_DURATION: 600
     ports:
       - "8080:8080"
@@ -231,3 +244,4 @@ services:
     depends_on:
       # - ethnode
       - bootstrap
+      - testrpc

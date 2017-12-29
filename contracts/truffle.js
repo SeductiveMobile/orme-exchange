@@ -13,6 +13,13 @@ module.exports = {
         network_id: "*",
         gas: 4029024,
         from: process.env.DEPLOYER_ADDRESS,
+      },
+      testrpc: {
+        host: process.env.RPC_HOST || "localhost",
+        port: process.env.RPC_PORT || 8545,
+        network_id: "*",
+        gas: 4029024,
+        from: process.env.DEPLOYER_ADDRESS,
       }
     },
     solc: {

@@ -14,13 +14,13 @@ echo "Unlocking account for tests"
 
 # Test on private net
 echo "Testing on network: development"
-truffle test --network development
+truffle test --network $NETWORK_NAME
 
 # Deploy to private net
 echo "Unlocking account for migrations"
 /usr/bin/python3 unlock.py
 echo "Deployment on network: development"
-truffle migrate --network development
+truffle migrate --network $NETWORK_NAME
 
 # Truffle console on private net for tests
 #truffle console --network development
