@@ -16,7 +16,7 @@ from orme.btc_client import BitcoinClient
 from orme.db import session
 from orme.eth_client import Address as ETHAdress
 from orme.eth_client import EthereumClient, PricingStrategyContract
-from orme.models import Address, User
+from orme.models import Address, User, Contract
 
 # from celery import Celery
 
@@ -346,6 +346,17 @@ class SessionsService(object):
             return user
 
         return None
+
+
+class ContractService(object):
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def find(name):
+        query = session.query(Contract).filter(Contract.name == name)
+        contract = query.one_or_none()
+        return contract
 
 
 if __name__ == '__main__':

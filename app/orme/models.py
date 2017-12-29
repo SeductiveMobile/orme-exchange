@@ -6,7 +6,7 @@ import datetime
 from marshmallow import fields
 from marshmallow_sqlalchemy import ModelSchema
 from orme.db import Base
-from sqlalchemy import Column, Integer, String, Enum, DateTime
+from sqlalchemy import Column, Integer, String, Enum, DateTime, Text
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 
@@ -68,6 +68,16 @@ class Address(Base):
 User.addresses = relationship("Address", order_by=Address.id, back_populates="user")
 
 
+class Contract(Base):
+    __tablename__ = 'contracts'
+    id = Column(Integer, primary_key=True)
+    name = Column(String, unique=True, nullable=False)
+    address = Column(String(255), unique=True, nullable=False)
+    abi = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow())
+    updated_at = Column(DateTime, onupdate=datetime.datetime.utcnow())
+
+
 class AddressSchema(ModelSchema):
     class Meta:
         model = Address
@@ -79,6 +89,11 @@ class UserSchema(ModelSchema):
     created_at = fields.DateTime()
     updated_at = fields.DateTime()
     addresses = fields.Nested(AddressSchema, only=('address', 'balance', 'currency', 'password'), many=True)
+
+
+class ContractSchema(ModelSchema):
+    class Meta:
+        model = Contract
 
 # Do not create all using metadata, since structure is created via Alembic migrations
 # Base.metadata.create_all(engine)
