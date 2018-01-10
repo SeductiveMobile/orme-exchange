@@ -2,6 +2,7 @@ from __future__ import absolute_import, unicode_literals
 
 import base64
 import datetime
+import os
 
 from marshmallow import fields
 from marshmallow_sqlalchemy import ModelSchema
@@ -66,13 +67,35 @@ class Address(Base):
     user = relationship("User", back_populates="addresses")
 
     @staticmethod
-    def encode_secret(data, secret_key):
+    def cipher_string(data, secret_key):
+        """Encodes data string with a secret key using Fernet algorithm
+        http://docs.python-guide.org/en/latest/scenarios/crypto/
+        Cryptograpy suite works with byte arrays while our app works with strings,
+        so we are forced to encode strings for using with Cryptograpy and decode result back to strings.
+
+        Args
+            data (str) string to encode
+
+        Returns
+            encoded string
+        """
         cipher_suite = Fernet(secret_key.encode())
         cipher_text = cipher_suite.encrypt(data.encode())
         return cipher_text.decode()
 
     @staticmethod
-    def decode_secret(data, secret_key):
+    def decipher_string(data, secret_key):
+        """Decodes data string with a secret key using Fernet algorithm
+        http://docs.python-guide.org/en/latest/scenarios/crypto/
+        Cryptograpy suite works with byte arrays while our app works with strings,
+        so we are forced to encode strings for using with Cryptograpy and decode result back to strings.
+
+        Args
+            data (str) string to decode
+
+        Returns
+            encoded string
+        """
         cipher_suite = Fernet(secret_key.encode())
         plain_text = cipher_suite.decrypt(data.encode())
         return plain_text.decode()
@@ -94,6 +117,13 @@ class Contract(Base):
 class AddressSchema(ModelSchema):
     class Meta:
         model = Address
+
+    password = fields.Method('show_password')
+
+    def show_password(self, obj):
+        # TODO: Pass secret key in explict way, not via environment variable
+        secret_key = os.environ['SECRET_KEY']
+        return Address.decipher_string(obj.password, secret_key)
 
 
 class UserSchema(ModelSchema):

@@ -244,21 +244,35 @@ class UserWalletsService(object):
 
 
 class UserService(object):
-    def __init__(self, id=None):
+
+    def __init__(self, id=None, secret_key=None):
+        """User Service constructor
+
+        Args
+            id (int): user id
+            secret_key (str): secret key for ciphering/deciphering wallet passwords and private keys
+        """
         self.id = id
+        self.secret_key = secret_key
+        if not self.secret_key:
+            self.secret_key = os.environ['SECRET_KEY']
 
     @classmethod
-    def create(cls, email, password):
+    def create(cls, email, password, secret_key=None):
         """Register user
 
         Args
             email (str): user email
             password (str): user password
+            secret_key (str): secret key for ciphering/deciphering wallet passwords and private keys
         Returns
             User: created user model object
         Raises
             ValueError: if was not able to register bitcoin wallet for new user
         """
+        if not secret_key:
+            secret_key = os.environ['SECRET_KEY']
+
         user = User(
             email=email,
             password_hash=User.encode_password(password),
@@ -273,11 +287,13 @@ class UserService(object):
         btc_client = BitcoinClient()
         btc_addr = BTCAddress(btc_client)
         if btc_addr.register():
+            private_key_hash = Address.cipher_string(btc_addr.private_key, secret_key)
+
             address = Address(
                 address=btc_addr.public_key,
                 currency='bitcoin',
                 wallet_type='user',
-                password=btc_addr.private_key,
+                password=private_key_hash,
                 user=user
             )
             session.add(address)
@@ -290,11 +306,12 @@ class UserService(object):
         random_passphrase = ''.join(random.choices(string.ascii_uppercase + string.digits, k=num_chars))
         eth_addr = ETHAdress(eclient, passphrase=random_passphrase)
         if eth_addr.register():
+            passphrase_hash = Address.cipher_string(eth_addr.passphrase, secret_key)
             address = Address(
                 address=eth_addr.address,
                 currency='ethereum',
                 wallet_type='user',
-                password=eth_addr.passphrase,
+                password=passphrase_hash,
                 user=user
             )
             session.add(address)
