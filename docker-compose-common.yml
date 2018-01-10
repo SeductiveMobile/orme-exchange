@@ -33,7 +33,7 @@ services:
       # ETHEREUM_PRICING_STRATEGY_CONTRACT: '0x0'
       ETHEREUM_PRICING_STRATEGY_CONTRACT: "0x57e4e6e24b956393d3d2c64c8b7665bfdc233e36"
       ETHEREUM_CONTRACT_EXECUTOR: "0x1ebd93ff2fc90b873a68e16b931a7c66e2237e31"
-
+      SECRET_KEY: "k9VZ38YvPTcYDa9qzeuQf8AZ6iNef4vF1AuTaF3MeXY="
     volumes:
       - ${PWD-.}/app:/usr/src/app
       - ${PWD-.}/contracts/build/contracts/PricingStrategy.json:/usr/src/app/PricingStrategy.json:ro

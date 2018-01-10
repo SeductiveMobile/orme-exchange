@@ -9,6 +9,7 @@ from orme.db import Base
 from sqlalchemy import Column, Integer, String, Enum, DateTime, Text
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
+from cryptography.fernet import Fernet
 
 
 class User(Base):
@@ -63,6 +64,18 @@ class Address(Base):
     # TODO: Add private key field
     user_id = Column(Integer, ForeignKey('users.id'))
     user = relationship("User", back_populates="addresses")
+
+    @staticmethod
+    def encode_secret(data, secret_key):
+        cipher_suite = Fernet(secret_key.encode())
+        cipher_text = cipher_suite.encrypt(data.encode())
+        return cipher_text.decode()
+
+    @staticmethod
+    def decode_secret(data, secret_key):
+        cipher_suite = Fernet(secret_key.encode())
+        plain_text = cipher_suite.decrypt(data.encode())
+        return plain_text.decode()
 
 
 User.addresses = relationship("Address", order_by=Address.id, back_populates="user")
