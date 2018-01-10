@@ -374,6 +374,16 @@ class ContractService(object):
         contract = query.one_or_none()
         return contract
 
+    @staticmethod
+    def create(name, address, abi):
+        contract = ContractService.find(name)
+        if not contract:
+            contract = Contract(name=name, address=address, abi=abi)
+            session.add(contract)
+            session.commit()
+
+        return contract
+
 
 if __name__ == '__main__':
     app.start()

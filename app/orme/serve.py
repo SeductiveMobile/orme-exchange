@@ -8,8 +8,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', ))
 
 from orme.eth_client import EthereumClient
 from orme.btc_client import BitcoinClient
-from orme.services import UserService, SessionsService
-from orme.models import UserSchema
+from orme.services import UserService, SessionsService, ContractService
+from orme.models import UserSchema, ContractSchema
 from flask import Flask
 from flask import jsonify
 from flask import request
@@ -145,6 +145,36 @@ def delete_user(id):
         response = jsonify(errors)
         response.status_code = 401
         return response
+
+
+@app.route('/api/contracts', methods=['POST'])
+def create_contract():
+    content = request.get_json(silent=True)
+    # content = request.get_json()
+    if content is not None and 'name' in content and 'address' in content and 'abi' in content:
+        contract = ContractService.create(content['name'], content['address'], content['abi'])
+        schema = ContractSchema()
+        result = schema.dump(contract)
+
+        response = jsonify(result.data)
+        response.status_code = 200
+        return response
+    else:
+        errors = [{'contract': 'cannot create contract, probably name, abi or address is missing'}]
+        response = jsonify(errors)
+        response.status_code = 422
+        return response
+
+
+@app.route('/api/contracts/<name>', methods=['GET'])
+def show_contract(name):
+    contract = ContractService.find(name)
+    schema = ContractSchema()
+    result = schema.dump(contract)
+
+    response = jsonify(result.data)
+    response.status_code = 200
+    return response
 
 
 # Sessions endpoint
